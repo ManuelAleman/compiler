@@ -2,6 +2,7 @@ package com.compiler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.compiler.utils.Pair;
 import com.compiler.utils.Simbol;
@@ -195,15 +196,13 @@ public class Lexical {
         }
     }
 
-    public void printErrors() {
-        for (Pair error : errors) {
-            System.out.println(error.getToken() + " " + error.getPosition().getRow() + " " + error.getPosition().getColumn());
-        }
-    }
-
     public void printSimbols() {
         for (Simbol simbol : simbols) {
             System.out.println(simbol.getTokenType() + " " + simbol.getValue());
         }
+    }
+
+    public List<Pair> getPairs() {
+        return pairs;
     }
 }
