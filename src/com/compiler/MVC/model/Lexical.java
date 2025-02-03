@@ -1,4 +1,4 @@
-package com.compiler;
+package com.compiler.MVC.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,7 +51,7 @@ public class Lexical {
         tokenMap.put("read", Token.READ);
         tokenMap.put("print", Token.PRINT);
 
-        tokenMap.put("END", Token.END);
+        tokenMap.put("ENDE", Token.END);
         tokenMap.put("ERROR", Token.ERROR);
     }
 
@@ -174,7 +174,8 @@ public class Lexical {
             }
 
             errors.add(new Pair(Token.ERROR, new Position(row, column)));
-
+            pairs.add(new Pair(Token.ERROR, new Position(row, column)));
+            simbols.add(new Simbol(Token.ERROR, String.valueOf(currentChar)));
             i++;
             column++;
         }
@@ -204,5 +205,13 @@ public class Lexical {
 
     public List<Pair> getPairs() {
         return pairs;
+    }
+
+    public List<Simbol> getSimbols() {
+        return simbols;
+    }
+
+    public List<Pair> getErrors() {
+        return errors;
     }
 }

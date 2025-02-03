@@ -1,20 +1,18 @@
 START
 	int edad;
-	double altura;
 	string nombre;
-	nombre = "Carlos";
-	edad = 25;
-	altura = 1.75;
+	double peso;
+	edad = 14;
+	nombre = "Jesus Manuel";
+	peso = 85.6;
 
-	print(nombre);
 	print(edad);
-	print(altura);
 
 	if(edad > 18) {
 	    print("Es mayor de edad");
 	} else {
 	    print("Es menor de edad");
 	}
+    !
 
-	read(edad);
-END
+ENDE

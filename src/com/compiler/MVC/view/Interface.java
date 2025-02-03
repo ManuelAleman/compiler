@@ -1,11 +1,10 @@
 package com.compiler.MVC.view;
 
-import com.compiler.Lexical;
-import com.compiler.utils.Pair;
+import com.compiler.MVC.model.Lexical;
+import com.compiler.utils.Simbol;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,16 +25,12 @@ public class Interface extends JFrame {
     private JButton intermediateButton;
     private JButton objectButton;
 
-    private Lexical lexical;
-
     public Interface() {
         setTitle("Compilador de Nuevo Lenguaje");
         setSize(1000, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
-
-        lexical = new Lexical();
 
         JPanel buttonPanel = new JPanel(new GridLayout(1, 6, 5, 5));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -47,27 +42,22 @@ public class Interface extends JFrame {
 
         analyzeButton = new JButton("Analizar");
         analyzeButton.setFont(new Font("Arial", Font.BOLD, 14));
-        analyzeButton.addActionListener(_ -> analyzeCode());
         buttonPanel.add(analyzeButton);
 
         parserButton = new JButton("Parser");
         parserButton.setFont(new Font("Arial", Font.BOLD, 14));
-        parserButton.addActionListener(_ -> parseCode());
         buttonPanel.add(parserButton);
 
         semanticButton = new JButton("Semántico");
         semanticButton.setFont(new Font("Arial", Font.BOLD, 14));
-        semanticButton.addActionListener(_ -> semanticAnalysis());
         buttonPanel.add(semanticButton);
 
         intermediateButton = new JButton("Intermedio");
         intermediateButton.setFont(new Font("Arial", Font.BOLD, 14));
-        intermediateButton.addActionListener(_ -> intermediateCode());
         buttonPanel.add(intermediateButton);
 
         objectButton = new JButton("Objeto");
         objectButton.setFont(new Font("Arial", Font.BOLD, 14));
-        objectButton.addActionListener(_ -> generateObjectCode());
         buttonPanel.add(objectButton);
 
         add(buttonPanel, BorderLayout.NORTH);
@@ -108,6 +98,50 @@ public class Interface extends JFrame {
         add(splitPane, BorderLayout.CENTER);
     }
 
+    public void setAnalyzeButtonListener(ActionListener listener) {
+        analyzeButton.addActionListener(listener);
+    }
+
+    public void setParserButtonListener(ActionListener listener) {
+        parserButton.addActionListener(listener);
+    }
+
+    public void setSemanticButtonListener(ActionListener listener) {
+        semanticButton.addActionListener(listener);
+    }
+
+    public void setIntermediateButtonListener(ActionListener listener) {
+        intermediateButton.addActionListener(listener);
+    }
+
+    public void setObjectButtonListener(ActionListener listener) {
+        objectButton.addActionListener(listener);
+    }
+
+    public String getCode() {
+        return codeArea.getText();
+    }
+
+    public void setLexicoContent(String content) {
+        lexicoArea.setText(content);
+    }
+
+    public void setSintacticoContent(String content) {
+        sintacticoArea.setText(content);
+    }
+
+    public void setSemanticoContent(String content) {
+        bajoNivelArea.setText(content);
+    }
+
+    public void setIntermediateContent(String content) {
+        bajoNivelArea.setText(content);
+    }
+
+    public void setObjectContent(String content) {
+        binarioArea.setText(content);
+    }
+
     private void openFile() {
         JFileChooser fileChooser = new JFileChooser();
         int returnValue = fileChooser.showOpenDialog(this);
@@ -125,33 +159,4 @@ public class Interface extends JFrame {
             }
         }
     }
-
-    private void analyzeCode() {
-        lexical.analyze(codeArea.getText());
-        StringBuilder lexicoContent = new StringBuilder();
-        for (Pair pair : lexical.getPairs()) {
-            lexicoContent.append(pair.getToken().name())
-                    .append(" -> ")
-                    .append(pair.getPosition())
-                    .append("\n");
-        }
-
-        lexicoArea.setText(lexicoContent.toString());
-    }
-    private void parseCode() {
-        // future implementation
-    }
-
-    private void semanticAnalysis() {
-        // future implementation
-    }
-
-    private void intermediateCode() {
-        // future implementation
-    }
-
-    private void generateObjectCode() {
-        // future implementation
-    }
-
 }
