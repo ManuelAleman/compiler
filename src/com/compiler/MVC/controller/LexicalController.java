@@ -14,16 +14,25 @@ public class LexicalController {
     }
 
     public void analyzeCode() {
+        clearLexical();
         String code = view.getCode();
         lexicalModel.analyze(code);
-
         StringBuilder lexicalContent = new StringBuilder();
+
         for (Simbol simbol : lexicalModel.getSimbols()) {
-            lexicalContent.append(simbol.getTokenType().name())
+            lexicalContent.append("< ")
+                    .append(simbol.getTokenType().name())
                     .append(" -> ")
                     .append(simbol.getValue())
+                    .append(" >")
                     .append("\n");
         }
+
         view.setLexicoContent(lexicalContent.toString());
+    }
+
+    private void clearLexical(){
+        view.clearLexicoContent();
+        lexicalModel.clearSimbols();
     }
 }

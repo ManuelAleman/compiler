@@ -214,4 +214,8 @@ public class Lexical {
     public List<Pair> getErrors() {
         return errors;
     }
+
+    public void clearSimbols() {
+        simbols.clear();
+    }
 }

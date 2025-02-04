@@ -142,6 +142,11 @@ public class Interface extends JFrame {
         binarioArea.setText(content);
     }
 
+    public void clearLexicoContent() {
+        System.out.println("clear");
+        lexicoArea.setText("");
+    }
+
     private void openFile() {
         JFileChooser fileChooser = new JFileChooser();
         int returnValue = fileChooser.showOpenDialog(this);
