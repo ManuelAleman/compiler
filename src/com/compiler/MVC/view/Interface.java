@@ -1,15 +1,9 @@
 package com.compiler.MVC.view;
 
-import com.compiler.MVC.model.Lexical;
-import com.compiler.utils.Simbol;
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.awt.event.*;
+import java.io.*;
 
 public class Interface extends JFrame {
 
@@ -18,7 +12,7 @@ public class Interface extends JFrame {
     private JTextArea sintacticoArea;
     private JTextArea bajoNivelArea;
     private JTextArea binarioArea;
-    private JButton openButton;
+    private JTextArea consoleArea;
     private JButton analyzeButton;
     private JButton parserButton;
     private JButton semanticButton;
@@ -26,38 +20,38 @@ public class Interface extends JFrame {
     private JButton objectButton;
 
     public Interface() {
-        setTitle("Compilador de Nuevo Lenguaje");
+        setTitle("CompilorR");
         setSize(1000, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        JPanel buttonPanel = new JPanel(new GridLayout(1, 6, 5, 5));
+        JMenuBar menuBar = new JMenuBar();
+        JMenu fileMenu = new JMenu("Archivo");
+        JMenuItem openMenuItem = new JMenuItem("Abrir");
+        JMenuItem saveMenuItem = new JMenuItem("Guardar");
+
+        openMenuItem.addActionListener(_ -> openFile());
+        saveMenuItem.addActionListener(_ -> saveFile());
+
+        fileMenu.add(openMenuItem);
+        fileMenu.add(saveMenuItem);
+        menuBar.add(fileMenu);
+        setJMenuBar(menuBar);
+
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 5, 5, 5));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        openButton = new JButton("Abrir Archivo");
-        openButton.setFont(new Font("Arial", Font.BOLD, 14));
-        openButton.addActionListener(_ -> openFile());
-        buttonPanel.add(openButton);
-
         analyzeButton = new JButton("Analizar");
-        analyzeButton.setFont(new Font("Arial", Font.BOLD, 14));
-        buttonPanel.add(analyzeButton);
-
         parserButton = new JButton("Parser");
-        parserButton.setFont(new Font("Arial", Font.BOLD, 14));
-        buttonPanel.add(parserButton);
-
         semanticButton = new JButton("Semántico");
-        semanticButton.setFont(new Font("Arial", Font.BOLD, 14));
-        buttonPanel.add(semanticButton);
-
         intermediateButton = new JButton("Intermedio");
-        intermediateButton.setFont(new Font("Arial", Font.BOLD, 14));
-        buttonPanel.add(intermediateButton);
-
         objectButton = new JButton("Objeto");
-        objectButton.setFont(new Font("Arial", Font.BOLD, 14));
+
+        buttonPanel.add(analyzeButton);
+        buttonPanel.add(parserButton);
+        buttonPanel.add(semanticButton);
+        buttonPanel.add(intermediateButton);
         buttonPanel.add(objectButton);
 
         add(buttonPanel, BorderLayout.NORTH);
@@ -65,7 +59,6 @@ public class Interface extends JFrame {
         codeArea = new JTextArea();
         JScrollPane codeScrollPane = new JScrollPane(codeArea);
         codeScrollPane.setBorder(BorderFactory.createTitledBorder("Código Fuente"));
-        add(codeScrollPane, BorderLayout.CENTER);
 
         JPanel resultsPanel = new JPanel(new GridLayout(2, 2));
 
@@ -96,6 +89,44 @@ public class Interface extends JFrame {
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, codeScrollPane, resultsPanel);
         splitPane.setResizeWeight(0.5);
         add(splitPane, BorderLayout.CENTER);
+
+        consoleArea = new JTextArea();
+        consoleArea.setEditable(false);
+        JScrollPane consoleScrollPane = new JScrollPane(consoleArea);
+        consoleScrollPane.setBorder(BorderFactory.createTitledBorder("Consola"));
+        consoleScrollPane.setPreferredSize(new Dimension(getWidth(), 150));
+
+        add(consoleScrollPane, BorderLayout.SOUTH);
+    }
+
+    private void openFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        int returnValue = fileChooser.showOpenDialog(this);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
+                StringBuilder fileContent = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    fileContent.append(line).append("\n");
+                }
+                codeArea.setText(fileContent.toString());
+            } catch (IOException e) {
+            }
+        }
+    }
+
+    private void saveFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        int returnValue = fileChooser.showSaveDialog(this);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(selectedFile))) {
+                writer.write(codeArea.getText());
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Error al guardar el archivo: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     public void setAnalyzeButtonListener(ActionListener listener) {
@@ -130,38 +161,28 @@ public class Interface extends JFrame {
         sintacticoArea.setText(content);
     }
 
-    public void setSemanticoContent(String content) {
+    public void setBajoNivelContent(String content) {
         bajoNivelArea.setText(content);
     }
 
-    public void setIntermediateContent(String content) {
-        bajoNivelArea.setText(content);
-    }
-
-    public void setObjectContent(String content) {
+    public void setBinarioContent(String content) {
         binarioArea.setText(content);
     }
 
+
+    public void clearConsole() {
+        consoleArea.setText("");
+    }
+
     public void clearLexicoContent() {
-        System.out.println("clear");
         lexicoArea.setText("");
     }
 
-    private void openFile() {
-        JFileChooser fileChooser = new JFileChooser();
-        int returnValue = fileChooser.showOpenDialog(this);
-        if (returnValue == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
-                StringBuilder fileContent = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    fileContent.append(line).append("\n");
-                }
-                codeArea.setText(fileContent.toString());
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(this, "Error al leer el archivo: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
+    public void logToConsole(String message) {
+        consoleArea.append(message + "\n");
+    }
+
+    public void clearConsoleArea() {
+        consoleArea.setText("");
     }
 }

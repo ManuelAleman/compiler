@@ -10,5 +10,6 @@ public enum Token {
     IF, ELSE,
     READ, PRINT,
     END,
-    ERROR
+    ERROR,
+    RW,
 }

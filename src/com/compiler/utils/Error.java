@@ -1,11 +1,13 @@
 package com.compiler.utils;
 
-public class Pair {
+public class Error {
     private Token token;
     private Position position;
-    public Pair(Token token, Position position) {
+    private String invalidValue;
+    public Error(Token token, Position position, String invalidValue) {
         this.token = token;
         this.position = position;
+        this.invalidValue = invalidValue;
     }
 
     public Position getPosition() {
@@ -14,5 +16,10 @@ public class Pair {
 
     public Token getToken() {
         return token;
+    }
+
+    @Override
+    public String toString() {
+        return "Error: " + invalidValue + " at " + position;
     }
 }

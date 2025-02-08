@@ -3,6 +3,8 @@ package com.compiler.MVC.controller;
 import com.compiler.MVC.model.Lexical;
 import com.compiler.MVC.view.Interface;
 import com.compiler.utils.Simbol;
+import com.compiler.utils.Error;
+import com.compiler.utils.Token;
 
 public class LexicalController {
     private Lexical lexicalModel;
@@ -17,6 +19,7 @@ public class LexicalController {
         clearLexical();
         String code = view.getCode();
         lexicalModel.analyze(code);
+
         StringBuilder lexicalContent = new StringBuilder();
 
         for (Simbol simbol : lexicalModel.getSimbols()) {
@@ -28,11 +31,30 @@ public class LexicalController {
                     .append("\n");
         }
 
+        /*
+        for( Token t: lexicalModel.getTokens()){
+            lexicalContent.append("< ")
+                    .append(t.name())
+                    .append(" >")
+                    .append("\n");
+        }
+         */
+
         view.setLexicoContent(lexicalContent.toString());
+        setErrors();
+    }
+
+    private void setErrors(){
+        StringBuilder errors = new StringBuilder();
+        for (Error error : lexicalModel.getErrors()) {
+            errors.append(error).append("\n");
+        }
+        view.logToConsole(errors.toString());
     }
 
     private void clearLexical(){
         view.clearLexicoContent();
+        view.clearConsoleArea();
         lexicalModel.clearSimbols();
     }
 }

@@ -1,221 +1,164 @@
 package com.compiler.MVC.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
-import com.compiler.utils.Pair;
+import com.compiler.utils.Error;
 import com.compiler.utils.Simbol;
 import com.compiler.utils.Token;
 import com.compiler.utils.Position;
 
 public class Lexical {
-    private final HashMap<String, Token> tokenMap;
-    private ArrayList<Token> tokens;
-    private ArrayList<Pair> pairs, errors;
-    private ArrayList<Simbol> simbols;
+    private static final Map<String, Token> tokenMap = Map.ofEntries(
+            Map.entry("+", Token.PLUS), Map.entry("-", Token.MINUS),
+            Map.entry("/", Token.DIVIDE), Map.entry("*", Token.TIMES),
+            Map.entry(">", Token.GREATER), Map.entry("<", Token.LESS),
+            Map.entry(">=", Token.GREATER_EQUAL), Map.entry("<=", Token.LESS_EQUAL),
+            Map.entry("==", Token.EQUAL), Map.entry("<>", Token.NOT_EQUAL),
+            Map.entry("(", Token.LEFT_PAREN), Map.entry(")", Token.RIGHT_PAREN),
+            Map.entry("{", Token.LEFT_BRACE), Map.entry("}", Token.RIGHT_BRACE),
+            Map.entry(";", Token.SEMICOLON), Map.entry("=", Token.ASSIGN),
+            Map.entry(".", Token.DOT), Map.entry(",", Token.COMMA)
+    );
+
+    private static final Map<String, Token> reservedWordMap = Map.ofEntries(
+            Map.entry("int", Token.INT), Map.entry("double", Token.DOUBLE),
+            Map.entry("string", Token.STRING), Map.entry("print", Token.RW),
+            Map.entry("read", Token.RW), Map.entry("START", Token.RW),
+            Map.entry("ENDE", Token.RW), Map.entry("if", Token.RW),
+            Map.entry("else", Token.RW)
+    );
+
+    private List<Token> tokens;
+    private List<Error> errors;
+    private List<Simbol> simbols;
 
     public Lexical() {
-        tokenMap = new HashMap<>();
+        tokens = new ArrayList<>();
+        errors = new ArrayList<>();
         simbols = new ArrayList<>();
-        tokenMap.put("START", Token.START);
-
-        tokenMap.put("int", Token.INT);
-        tokenMap.put("double", Token.DOUBLE);
-        tokenMap.put("string", Token.STRING);
-
-        tokenMap.put("+", Token.PLUS);
-        tokenMap.put("-", Token.MINUS);
-        tokenMap.put("/", Token.DIVIDE);
-        tokenMap.put("*", Token.TIMES);
-
-        tokenMap.put(">", Token.GREATER);
-        tokenMap.put("<", Token.LESS);
-        tokenMap.put(">=", Token.GREATER_EQUAL);
-        tokenMap.put("<=", Token.LESS_EQUAL);
-        tokenMap.put("==", Token.EQUAL);
-        tokenMap.put("<>", Token.NOT_EQUAL);
-
-        tokenMap.put("(", Token.LEFT_PAREN);
-        tokenMap.put(")", Token.RIGHT_PAREN);
-        tokenMap.put("{", Token.LEFT_BRACE);
-        tokenMap.put("}", Token.RIGHT_BRACE);
-        tokenMap.put(";", Token.SEMICOLON);
-        tokenMap.put("=", Token.ASSIGN);
-        tokenMap.put(".", Token.DOT);
-        tokenMap.put(",", Token.COMMA);
-
-        tokenMap.put("if", Token.IF);
-        tokenMap.put("else", Token.ELSE);
-
-        tokenMap.put("read", Token.READ);
-        tokenMap.put("print", Token.PRINT);
-
-        tokenMap.put("ENDE", Token.END);
-        tokenMap.put("ERROR", Token.ERROR);
     }
 
     public void analyze(String code) {
-        tokens = new ArrayList<>();
-        pairs = new ArrayList<>();
-        errors = new ArrayList<>();
+        tokens.clear();
+        errors.clear();
+        simbols.clear();
 
-        int row = 1;
-        int column = 1;
-        int length = code.length();
-        int i = 0;
+        int row = 1, column = 1, length = code.length(), i = 0;
 
         while (i < length) {
             char currentChar = code.charAt(i);
 
             if (Character.isWhitespace(currentChar)) {
-                if (currentChar == '\n') {
-                    row++;
-                    column = 1;
-                } else {
-                    column++;
-                }
+                if (currentChar == '\n') { row++; column = 1; }
+                else { column++; }
                 i++;
                 continue;
             }
 
-            if (tokenMap.containsKey(String.valueOf(currentChar))) {
-                Token token = tokenMap.get(String.valueOf(currentChar));
-                tokens.add(token);
-                pairs.add(new Pair(token, new Position(row, column)));
-                simbols.add(new Simbol(token, String.valueOf(currentChar)));
+            String doubleCharToken = (i + 1 < length) ? code.substring(i, i + 2) : "";
+            if (tokenMap.containsKey(doubleCharToken)) {
+                addToken(tokenMap.get(doubleCharToken), doubleCharToken, new Position(row, column));
+                i += 2;
+                column += 2;
+                continue;
+            }
+
+            String singleCharToken = String.valueOf(currentChar);
+            if (tokenMap.containsKey(singleCharToken)) {
+                addToken(tokenMap.get(singleCharToken), singleCharToken, new Position(row, column));
                 i++;
                 column++;
                 continue;
             }
 
-            if (i + 1 < length) {
-                String doubleCharToken = code.substring(i, i + 2);
-                if (tokenMap.containsKey(doubleCharToken)) {
-                    Token token = tokenMap.get(doubleCharToken);
-                    tokens.add(token);
-                    pairs.add(new Pair(token, new Position(row, column)));
-                    simbols.add(new Simbol(token, doubleCharToken));
-                    i += 2;
-                    column += 2;
-                    continue;
-                }
-            }
-
             if (Character.isDigit(currentChar)) {
-                StringBuilder number = new StringBuilder();
-                boolean isFraction = false;
-
-                while (i < length && (Character.isDigit(code.charAt(i)) || code.charAt(i) == '.')) {
-                    if (code.charAt(i) == '.') {
-                        if (isFraction) {
-                            errors.add(new Pair(Token.ERROR, new Position(row, column)));
-                            break;
-                        }
-                        isFraction = true;
-                    }
-                    number.append(code.charAt(i));
-                    i++;
-                    column++;
-                }
-
-                if (isFraction) {
-                    tokens.add(Token.FRACTION);
-                    pairs.add(new Pair(Token.FRACTION, new Position(row, column - number.length())));
-                    simbols.add(new Simbol(Token.FRACTION, number.toString()));
-                } else {
-                    tokens.add(Token.NUMBER);
-                    pairs.add(new Pair(Token.NUMBER, new Position(row, column - number.length())));
-                    simbols.add(new Simbol(Token.NUMBER, number.toString()));
-                }
+                int currentI = i;
+                i = processNumber(code, i, row, column);
+                column += (i - currentI);
                 continue;
             }
 
             if (Character.isLetter(currentChar)) {
-                StringBuilder identifier = new StringBuilder();
-                while (i < length && (Character.isLetterOrDigit(code.charAt(i)) || code.charAt(i) == '_')) {
-                    identifier.append(code.charAt(i));
-                    i++;
-                    column++;
-                }
-                String id = identifier.toString();
-                if (isReservedWord(id)) {
-                    Token token = tokenMap.get(id);
-                    tokens.add(token);
-                    pairs.add(new Pair(token, new Position(row, column - id.length())));
-                    simbols.add(new Simbol(token, id));
-                } else {
-                    tokens.add(Token.IDENTIFIER);
-                    pairs.add(new Pair(Token.IDENTIFIER, new Position(row, column - id.length())));
-                    simbols.add(new Simbol(Token.IDENTIFIER, id));
-                }
+                int currentI = i;
+                i = processIdentifier(code, i, row, column);
+                column += (i - currentI);
                 continue;
             }
 
             if (currentChar == '"') {
-                StringBuilder stringValue = new StringBuilder();
-                i++;
-                column++;
-                while (i < length && code.charAt(i) != '"') {
-                    stringValue.append(code.charAt(i));
-                    i++;
-                    column++;
-                }
-                if (i < length && code.charAt(i) == '"') {
-                    i++;
-                    column++;
-                } else {
-                    errors.add(new Pair(Token.ERROR, new Position(row, column)));
-                }
-                tokens.add(Token.STRING_VALUE);
-                pairs.add(new Pair(Token.STRING_VALUE, new Position(row, column - stringValue.length() - 2)));
-                simbols.add(new Simbol(Token.STRING_VALUE, stringValue.toString()));
+                int currentI = i;
+                i = processString(code, i, row, column);
+                column += (i - currentI);
                 continue;
             }
 
-            errors.add(new Pair(Token.ERROR, new Position(row, column)));
-            pairs.add(new Pair(Token.ERROR, new Position(row, column)));
-            simbols.add(new Simbol(Token.ERROR, String.valueOf(currentChar)));
+            errors.add(new Error(Token.ERROR, new Position(row, column), singleCharToken));
             i++;
             column++;
         }
     }
 
-    private boolean isReservedWord(String word) {
-        return tokenMap.containsKey(word);
+    private int processNumber(String code, int i, int row, int column) {
+        StringBuilder number = new StringBuilder();
+        boolean isFraction = false;
+
+        while (i < code.length() && (Character.isDigit(code.charAt(i)) || code.charAt(i) == '.')) {
+            if (code.charAt(i) == '.') {
+                if (isFraction) break;
+                isFraction = true;
+            }
+            number.append(code.charAt(i));
+            i++;
+        }
+
+        Token token = isFraction ? Token.FRACTION : Token.NUMBER;
+        addToken(token, number.toString(), new Position(row, column));
+        return i;
+    }
+
+    private int processIdentifier(String code, int i, int row, int column) {
+        StringBuilder identifier = new StringBuilder();
+
+        while (i < code.length() && (Character.isLetterOrDigit(code.charAt(i)) || code.charAt(i) == '_')) {
+            identifier.append(code.charAt(i));
+            i++;
+        }
+
+        String id = identifier.toString();
+        Token token = reservedWordMap.getOrDefault(id, Token.IDENTIFIER);
+        addToken(token, id, new Position(row, column));
+        return i;
+    }
+
+    private int processString(String code, int i, int row, int column) {
+        StringBuilder stringValue = new StringBuilder();
+        i++;
+
+        while (i < code.length() && code.charAt(i) != '"') {
+            stringValue.append(code.charAt(i));
+            i++;
+        }
+
+        if (i < code.length() && code.charAt(i) == '"') i++;
+        addToken(Token.STRING_VALUE, stringValue.toString(), new Position(row, column));
+        return i;
+    }
+
+    private void addToken(Token token, String value, Position position) {
+        tokens.add(token);
+        simbols.add(new Simbol(token, value, position));
     }
 
     public void printTokens() {
-        for (Token token : tokens) {
-            System.out.println(token);
-        }
-    }
-
-    public void printPairs() {
-        for (Pair pair : pairs) {
-            System.out.println(pair.getToken() + " " + pair.getPosition().getRow() + " " + pair.getPosition().getColumn());
-        }
+        tokens.forEach(System.out::println);
     }
 
     public void printSimbols() {
-        for (Simbol simbol : simbols) {
-            System.out.println(simbol.getTokenType() + " " + simbol.getValue());
-        }
+        simbols.forEach(simbol -> System.out.println(simbol.getTokenType() + " " + simbol.getValue()));
     }
 
-    public List<Pair> getPairs() {
-        return pairs;
-    }
-
-    public List<Simbol> getSimbols() {
-        return simbols;
-    }
-
-    public List<Pair> getErrors() {
-        return errors;
-    }
-
-    public void clearSimbols() {
-        simbols.clear();
-    }
+    public List<Simbol> getSimbols() { return simbols; }
+    public List<Error> getErrors() { return errors; }
+    public void clearSimbols() { simbols.clear(); }
+    public List<Token> getTokens() { return tokens; }
 }
