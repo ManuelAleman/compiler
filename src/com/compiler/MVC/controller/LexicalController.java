@@ -4,7 +4,8 @@ import com.compiler.MVC.model.Lexical;
 import com.compiler.MVC.view.Interface;
 import com.compiler.utils.Simbol;
 import com.compiler.utils.Error;
-import com.compiler.utils.Token;
+
+import java.util.List;
 
 public class LexicalController {
     private Lexical lexicalModel;
@@ -56,5 +57,9 @@ public class LexicalController {
         view.clearLexicoContent();
         view.clearConsoleArea();
         lexicalModel.clearSimbols();
+    }
+
+    public List<Simbol> getSimbols() {
+        return lexicalModel.getSimbols();
     }
 }

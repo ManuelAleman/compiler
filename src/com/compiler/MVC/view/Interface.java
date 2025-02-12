@@ -49,10 +49,10 @@ public class Interface extends JFrame {
         objectButton = new JButton("Objeto");
 
         buttonPanel.add(analyzeButton);
-        buttonPanel.add(parserButton);
-        buttonPanel.add(semanticButton);
-        buttonPanel.add(intermediateButton);
-        buttonPanel.add(objectButton);
+        //buttonPanel.add(parserButton);
+        //buttonPanel.add(semanticButton);
+        //buttonPanel.add(intermediateButton);
+        //buttonPanel.add(objectButton);
 
         add(buttonPanel, BorderLayout.NORTH);
 
@@ -72,19 +72,19 @@ public class Interface extends JFrame {
         sintacticoArea.setEditable(false);
         JScrollPane sintacticoScrollPane = new JScrollPane(sintacticoArea);
         sintacticoScrollPane.setBorder(BorderFactory.createTitledBorder("Análisis Sintáctico"));
-        resultsPanel.add(sintacticoScrollPane);
+        //resultsPanel.add(sintacticoScrollPane);
 
         bajoNivelArea = new JTextArea();
         bajoNivelArea.setEditable(false);
         JScrollPane bajoNivelScrollPane = new JScrollPane(bajoNivelArea);
         bajoNivelScrollPane.setBorder(BorderFactory.createTitledBorder("Código de Bajo Nivel"));
-        resultsPanel.add(bajoNivelScrollPane);
+        //resultsPanel.add(bajoNivelScrollPane);
 
         binarioArea = new JTextArea();
         binarioArea.setEditable(false);
         JScrollPane binarioScrollPane = new JScrollPane(binarioArea);
         binarioScrollPane.setBorder(BorderFactory.createTitledBorder("Código Binario"));
-        resultsPanel.add(binarioScrollPane);
+        //resultsPanel.add(binarioScrollPane);
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, codeScrollPane, resultsPanel);
         splitPane.setResizeWeight(0.5);

@@ -16,13 +16,12 @@ public class Lexical {
             Map.entry("==", Token.EQUAL), Map.entry("<>", Token.NOT_EQUAL),
             Map.entry("(", Token.LEFT_PAREN), Map.entry(")", Token.RIGHT_PAREN),
             Map.entry("{", Token.LEFT_BRACE), Map.entry("}", Token.RIGHT_BRACE),
-            Map.entry(";", Token.SEMICOLON), Map.entry("=", Token.ASSIGN),
-            Map.entry(".", Token.DOT), Map.entry(",", Token.COMMA)
+            Map.entry(";", Token.SEMICOLON), Map.entry("=", Token.ASSIGN)
     );
 
     private static final Map<String, Token> reservedWordMap = Map.ofEntries(
-            Map.entry("int", Token.INT), Map.entry("double", Token.DOUBLE),
-            Map.entry("string", Token.STRING), Map.entry("print", Token.RW),
+            Map.entry("int", Token.RW), Map.entry("double", Token.RW),
+            Map.entry("string", Token.RW), Map.entry("print", Token.RW),
             Map.entry("read", Token.RW), Map.entry("START", Token.RW),
             Map.entry("ENDE", Token.RW), Map.entry("if", Token.RW),
             Map.entry("else", Token.RW)
@@ -47,14 +46,14 @@ public class Lexical {
 
         while (i < length) {
             char currentChar = code.charAt(i);
-
+            //verificamos si hay salto de linea para pasar a la siguiente fila
             if (Character.isWhitespace(currentChar)) {
                 if (currentChar == '\n') { row++; column = 1; }
                 else { column++; }
                 i++;
                 continue;
             }
-
+            //obtenemos un token de dos caracteres si es posible y verificamos si lo tenemos en el mapa
             String doubleCharToken = (i + 1 < length) ? code.substring(i, i + 2) : "";
             if (tokenMap.containsKey(doubleCharToken)) {
                 addToken(tokenMap.get(doubleCharToken), doubleCharToken, new Position(row, column));
@@ -62,7 +61,7 @@ public class Lexical {
                 column += 2;
                 continue;
             }
-
+            //obtenemos un token de un caracter y verificamos si lo tenemos en el mapa
             String singleCharToken = String.valueOf(currentChar);
             if (tokenMap.containsKey(singleCharToken)) {
                 addToken(tokenMap.get(singleCharToken), singleCharToken, new Position(row, column));
@@ -70,21 +69,21 @@ public class Lexical {
                 column++;
                 continue;
             }
-
+            //verificamos si es un numero
             if (Character.isDigit(currentChar)) {
                 int currentI = i;
                 i = processNumber(code, i, row, column);
                 column += (i - currentI);
                 continue;
             }
-
+            //verificamos si es un identificador o palabra reservada
             if (Character.isLetter(currentChar)) {
                 int currentI = i;
                 i = processIdentifier(code, i, row, column);
                 column += (i - currentI);
                 continue;
             }
-
+            //verificamos si es un string
             if (currentChar == '"') {
                 int currentI = i;
                 i = processString(code, i, row, column);
@@ -93,6 +92,7 @@ public class Lexical {
             }
 
             errors.add(new Error(Token.ERROR, new Position(row, column), singleCharToken));
+            addToken(Token.ERROR, singleCharToken, new Position(row, column));
             i++;
             column++;
         }

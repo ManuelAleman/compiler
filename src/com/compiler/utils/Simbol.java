@@ -34,4 +34,9 @@ public class Simbol {
     public void setPosition(Position position) {
         this.position = position;
     }
+
+    @Override
+    public String toString() {
+        return tokenType + " " + value + " " + position;
+    }
 }
