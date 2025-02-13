@@ -49,7 +49,7 @@ public class Interface extends JFrame {
         objectButton = new JButton("Objeto");
 
         buttonPanel.add(analyzeButton);
-        //buttonPanel.add(parserButton);
+        buttonPanel.add(parserButton);
         //buttonPanel.add(semanticButton);
         //buttonPanel.add(intermediateButton);
         //buttonPanel.add(objectButton);
@@ -72,7 +72,7 @@ public class Interface extends JFrame {
         sintacticoArea.setEditable(false);
         JScrollPane sintacticoScrollPane = new JScrollPane(sintacticoArea);
         sintacticoScrollPane.setBorder(BorderFactory.createTitledBorder("Análisis Sintáctico"));
-        //resultsPanel.add(sintacticoScrollPane);
+        resultsPanel.add(sintacticoScrollPane);
 
         bajoNivelArea = new JTextArea();
         bajoNivelArea.setEditable(false);
@@ -176,6 +176,10 @@ public class Interface extends JFrame {
 
     public void clearLexicoContent() {
         lexicoArea.setText("");
+    }
+
+    public void clearSintacticoContent() {
+        sintacticoArea.setText("");
     }
 
     public void logToConsole(String message) {
