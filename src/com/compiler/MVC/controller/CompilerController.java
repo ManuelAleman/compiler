@@ -28,6 +28,7 @@ public class CompilerController {
         });
 
         view.setParserButtonListener(_ -> parserController.parseToken(lexicalController.getSimbols()));
+        view.setParserButtonEnabled(false);
     }
 
 

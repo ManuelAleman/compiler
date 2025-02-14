@@ -85,6 +85,7 @@ public class Lexical {
             }
             //verificamos si es un string
             if (currentChar == '"') {
+
                 int currentI = i;
                 i = processString(code, i, row, column);
                 column += (i - currentI);

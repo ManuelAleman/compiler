@@ -26,16 +26,26 @@ public class Parser {
     }
 
     private void next() {
-        currentToken = (++index < tokens.size()) ? tokens.get(index) : null;
+        if (!hasError) {
+            currentToken = (++index < tokens.size()) ? tokens.get(index) : null;
+        }
     }
 
     private boolean match(Token expected) {
         return currentToken != null && currentToken.getTokenType() == expected;
     }
 
+    private void expect(Token expected, String message) {
+        if (hasError) return;
+        if (!match(expected)) {
+            reportError(message);
+        }
+        next();
+    }
+
     public boolean parse() {
         if (currentToken == null) {
-            reportError("No tokens to parse.");
+            reportError("inicio del programa");
             return false;
         }
         program();
@@ -43,22 +53,23 @@ public class Parser {
     }
 
     private void program() {
+        if (hasError) return;
         if (match(Token.RW) && "START".equals(currentToken.getValue())) {
             next();
             declarationList();
+            if (hasError) return;
             if (match(Token.RW) && "ENDE".equals(currentToken.getValue())) {
                 next();
             } else {
-                reportError("'ENDE' was expected.");
+                reportError("'ENDE'");
             }
         } else {
-            reportError("'START' was expected.");
+            reportError("'START'");
         }
     }
 
-
     private void declarationList() {
-        while (currentToken != null && !(match(Token.RW) && "ENDE".equals(currentToken.getValue()))) {
+        while (!hasError && currentToken != null && !(match(Token.RW) && "ENDE".equals(currentToken.getValue()))) {
             int currentIndex = index;
             declaration();
             if (currentIndex == index) {
@@ -68,37 +79,21 @@ public class Parser {
     }
 
     private void declaration() {
-        if (currentToken == null) return;
+        if (hasError || currentToken == null) return;
 
         if (match(Token.IDENTIFIER)) {
             next();
-            if (match(Token.ASSIGN)) {
-                next();
-                expression();
-                if (match(Token.SEMICOLON)) {
-                    next();
-                } else {
-                    reportError("';' expected after assignment.");
-                }
-            } else {
-                reportError("'=' expected after identifier.");
-            }
+            expect(Token.ASSIGN, "'='");
+            if (!hasError) expression();
+            expect(Token.SEMICOLON, "';'");
         } else if (match(Token.RW)) {
             switch (currentToken.getValue()) {
                 case "int":
                 case "double":
                 case "string":
                     next();
-                    if (!match(Token.IDENTIFIER)) {
-                        reportError("Identifier expected after type");
-                        return;
-                    }
-                    next();
-                    if (match(Token.SEMICOLON)) {
-                        next();
-                    } else {
-                        reportError("';' expected after type declaration");
-                    }
+                    expect(Token.IDENTIFIER, "identifier");
+                    expect(Token.SEMICOLON, "';'");
                     break;
                 case "if":
                     next();
@@ -107,110 +102,94 @@ public class Parser {
                 case "print":
                     next();
                     printBlock();
-                    if (match(Token.SEMICOLON)) {
-                        next();
-                    } else {
-                        reportError("';' expected after print statement");
-                    }
+                    expect(Token.SEMICOLON, "';'");
+                    break;
+                case "read":
+                    next();
+                    readBlock();
+                    expect(Token.SEMICOLON, "';'");
                     break;
                 default:
-                    reportError("Invalid declaration.");
-
+                    reportError("declaration ");
             }
+        } else {
+            reportError("declaration");
         }
-
     }
 
     private void expression() {
-        if (match(Token.IDENTIFIER) || match(Token.NUMBER) || match(Token.FRACTION)) {
+        if (hasError) return;
+        if (match(Token.IDENTIFIER) || match(Token.NUMBER) || match(Token.FRACTION) || match(Token.STRING_VALUE)) {
             next();
-            if (isArithOperator(currentToken)) {
+            if (!hasError && isArithOperator(currentToken)) {
                 next();
                 expression();
             }
         } else {
-            reportError("Invalid expression.");
+            reportError("expression");
         }
     }
 
     private void ifDeclaration() {
-        if (!match(Token.LEFT_PAREN)) {
-            reportError("Missing '(' after if");
-            return;
-        }
-        next();
-        comparation();
-        if (!match(Token.RIGHT_PAREN)) {
-            reportError("Missing ')' after if condition");
-            return;
-        }
-        next();
-        parseBlock();
+        if (hasError) return;
+        expect(Token.LEFT_PAREN, "'('");
+        if (!hasError) comparation();
+        expect(Token.RIGHT_PAREN, "')'");
+        if (!hasError) parseBlock();
 
-        if (match(Token.RW) && "else".equals(currentToken.getValue())) {
+        if (!hasError && match(Token.RW) && "else".equals(currentToken.getValue())) {
             next();
             parseBlock();
         }
     }
 
     private void comparation() {
+        if (hasError) return;
         ifExpression();
-        if (isCompOperator(currentToken)) {
+        if (!hasError && isCompOperator(currentToken)) {
             next();
             ifExpression();
         } else {
-            reportError("Missing comparison operator");
+            reportError("comparison operator");
         }
     }
 
     private void ifExpression() {
+        if (hasError) return;
         if (match(Token.IDENTIFIER) || match(Token.NUMBER) || match(Token.FRACTION)) {
             next();
         } else {
-            reportError("Invalid expression in if");
+            reportError("expression");
         }
     }
+
     private void parseBlock() {
-        if (!match(Token.LEFT_BRACE)) {
-            reportError("Missing '{' after condition");
-            return;
-        }
-        next();
-        while (currentToken != null && !match(Token.RIGHT_BRACE)) {
+        if (hasError) return;
+        expect(Token.LEFT_BRACE, "'{'");
+        while (!hasError && currentToken != null && !match(Token.RIGHT_BRACE)) {
             int currentIndex = index;
             declaration();
-            if (currentIndex == index) {
-                next();
-            }
+            if (currentIndex == index) next();
             if (currentToken == null) {
-                reportError("Unexpected end of input, '}' expected.");
+                reportError("'}'");
                 return;
             }
         }
-        if (!match(Token.RIGHT_BRACE)) {
-            reportError("Missing '}' after block");
-        } else {
-            next();
-        }
+        expect(Token.RIGHT_BRACE, "'}'");
     }
 
-
     private void printBlock() {
-        if (!match(Token.LEFT_PAREN)) {
-            reportError("Missing '(' after print");
-            return;
-        }
-        next();
+        if (hasError) return;
+        expect(Token.LEFT_PAREN, "'('");
+        if (!hasError && (match(Token.IDENTIFIER) || match(Token.STRING_VALUE))) next();
+        expect(Token.RIGHT_PAREN, "')'");
+    }
 
-        if (match(Token.IDENTIFIER) || match(Token.STRING_VALUE)) {
-            next();
-        }
-
-        if (!match(Token.RIGHT_PAREN)) {
-            reportError("Missing ')' after print argument");
-            return;
-        }
-        next();
+    private void readBlock() {
+        if (hasError) return;
+        expect(Token.LEFT_PAREN, "'('");
+        expect(Token.IDENTIFIER, "identifier");
+        expect(Token.RIGHT_PAREN, "')'");
     }
 
     private boolean isArithOperator(Simbol token) {
@@ -227,12 +206,14 @@ public class Parser {
         };
     }
 
-    private void reportError(String message) {
+    private void reportError(String expected) {
+        if (hasError) return;
         hasError = true;
-        if (currentToken != null) {
-            errorMessages.add("Error at line " + currentToken.getPosition() + ": " + message);
+        if (currentToken == null) {
+            errorMessages.add("Error: Fin de entrada inesperado, se esperaba " + expected + ".");
         } else {
-            errorMessages.add("Error: " + message);
+            errorMessages.add("Error en línea " + currentToken.getPosition().getRow() + ", columna " + currentToken.getPosition().getColumn() +
+                    ": se esperaba " + expected + " pero se encontró '" + currentToken.getValue() + "'.");
         }
     }
 

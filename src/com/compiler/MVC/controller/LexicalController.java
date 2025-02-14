@@ -19,6 +19,13 @@ public class LexicalController {
     public void analyzeCode() {
         clearLexical();
         String code = view.getCode();
+
+        if (code.isEmpty()) {
+            view.logToConsole("No hay código para analizar");
+            view.setParserButtonEnabled(false);
+            return;
+        }
+
         lexicalModel.analyze(code);
 
         StringBuilder lexicalContent = new StringBuilder();
@@ -32,17 +39,10 @@ public class LexicalController {
                     .append("\n");
         }
 
-        /*
-        for( Token t: lexicalModel.getTokens()){
-            lexicalContent.append("< ")
-                    .append(t.name())
-                    .append(" >")
-                    .append("\n");
-        }
-         */
-
         view.setLexicoContent(lexicalContent.toString());
         setErrors();
+
+        view.setParserButtonEnabled(lexicalModel.getErrors().isEmpty());
     }
 
     private void setErrors(){

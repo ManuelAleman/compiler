@@ -189,4 +189,13 @@ public class Interface extends JFrame {
     public void clearConsoleArea() {
         consoleArea.setText("");
     }
+
+    public void setLexicalButtonEnabled(boolean enabled) {
+        parserButton.setEnabled(enabled);
+    }
+
+    public void setParserButtonEnabled(boolean enabled) {
+        parserButton.setEnabled(enabled);
+    }
+
 }
