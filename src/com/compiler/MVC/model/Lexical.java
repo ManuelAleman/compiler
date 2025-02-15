@@ -150,16 +150,28 @@ public class Lexical {
         simbols.add(new Simbol(token, value, position));
     }
 
-    public void printTokens() {
-        tokens.forEach(System.out::println);
-    }
-
-    public void printSimbols() {
-        simbols.forEach(simbol -> System.out.println(simbol.getTokenType() + " " + simbol.getValue()));
-    }
-
     public List<Simbol> getSimbols() { return simbols; }
     public List<Error> getErrors() { return errors; }
     public void clearSimbols() { simbols.clear(); }
-    public List<Token> getTokens() { return tokens; }
+
+    public String getLexicalAsString(){
+        StringBuilder lexicalContent = new StringBuilder();
+        for (Simbol simbol : simbols) {
+            lexicalContent.append("< ")
+                    .append(simbol.getTokenType().name())
+                    .append(" -> ")
+                    .append(simbol.getValue())
+                    .append(" >")
+                    .append("\n");
+        }
+        return lexicalContent.toString();
+    }
+
+    public String getErrorAsString(){
+        StringBuilder errorString = new StringBuilder();
+        for (Error error : errors) {
+            errorString.append(error).append("\n");
+        }
+        return errorString.toString();
+    }
 }

@@ -153,9 +153,11 @@ public class Interface extends JFrame {
         return codeArea.getText();
     }
 
-    public void setLexicoContent(String content) {
+    public void setLexicoContent(String content, boolean hasErrors) {
         lexicoArea.setText(content);
+        lexicoArea.setForeground(hasErrors ? Color.RED : Color.BLACK);
     }
+
 
     public void setSintacticoContent(String content) {
         sintacticoArea.setText(content);

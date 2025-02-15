@@ -24,6 +24,7 @@ public class CompilerController {
 
     private void initViewListeners() {
         view.setAnalyzeButtonListener(_ -> {
+            parserController.clearParser();
             lexicalController.analyzeCode();
         });
 
