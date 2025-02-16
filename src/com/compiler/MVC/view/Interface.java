@@ -9,7 +9,7 @@ public class Interface extends JFrame {
 
     private JTextArea codeArea;
     private JTextArea lexicoArea;
-    private JTextArea sintacticoArea;
+    private JPanel sintacticoSemanticPanel;
     private JTextArea bajoNivelArea;
     private JTextArea binarioArea;
     private JTextArea consoleArea;
@@ -18,6 +18,9 @@ public class Interface extends JFrame {
     private JButton semanticButton;
     private JButton intermediateButton;
     private JButton objectButton;
+
+    private JLabel sintacticLabel;
+    private JLabel semanticLabel;
 
     public Interface() {
         setTitle("CompilorR");
@@ -50,7 +53,7 @@ public class Interface extends JFrame {
 
         buttonPanel.add(analyzeButton);
         buttonPanel.add(parserButton);
-        //buttonPanel.add(semanticButton);
+        buttonPanel.add(semanticButton);
         //buttonPanel.add(intermediateButton);
         //buttonPanel.add(objectButton);
 
@@ -60,7 +63,7 @@ public class Interface extends JFrame {
         JScrollPane codeScrollPane = new JScrollPane(codeArea);
         codeScrollPane.setBorder(BorderFactory.createTitledBorder("Código Fuente"));
 
-        JPanel resultsPanel = new JPanel(new GridLayout(2, 2));
+        JPanel resultsPanel = new JPanel(new GridLayout(2, 2, 5, 5)); // 2 filas, 2 columnas
 
         lexicoArea = new JTextArea();
         lexicoArea.setEditable(false);
@@ -68,11 +71,18 @@ public class Interface extends JFrame {
         lexicoScrollPane.setBorder(BorderFactory.createTitledBorder("Análisis Léxico"));
         resultsPanel.add(lexicoScrollPane);
 
-        sintacticoArea = new JTextArea();
-        sintacticoArea.setEditable(false);
-        JScrollPane sintacticoScrollPane = new JScrollPane(sintacticoArea);
-        sintacticoScrollPane.setBorder(BorderFactory.createTitledBorder("Análisis Sintáctico"));
-        resultsPanel.add(sintacticoScrollPane);
+        // Crear un JPanel para agrupar los dos JLabel (Sintáctico y Semántico)
+        sintacticoSemanticPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+
+        sintacticLabel = new JLabel();
+        sintacticLabel.setBorder(BorderFactory.createTitledBorder("Análisis Sintáctico"));
+        semanticLabel = new JLabel();
+        semanticLabel.setBorder(BorderFactory.createTitledBorder("Análisis Semántico"));
+
+        sintacticoSemanticPanel.add(sintacticLabel);
+        sintacticoSemanticPanel.add(semanticLabel);
+
+        resultsPanel.add(sintacticoSemanticPanel);
 
         bajoNivelArea = new JTextArea();
         bajoNivelArea.setEditable(false);
@@ -159,10 +169,6 @@ public class Interface extends JFrame {
     }
 
 
-    public void setSintacticoContent(String content) {
-        sintacticoArea.setText(content);
-    }
-
     public void setBajoNivelContent(String content) {
         bajoNivelArea.setText(content);
     }
@@ -170,7 +176,6 @@ public class Interface extends JFrame {
     public void setBinarioContent(String content) {
         binarioArea.setText(content);
     }
-
 
     public void clearConsole() {
         consoleArea.setText("");
@@ -181,7 +186,13 @@ public class Interface extends JFrame {
     }
 
     public void clearSintacticoContent() {
-        sintacticoArea.setText("");
+        JLabel sintacticoLabel = (JLabel) sintacticoSemanticPanel.getComponent(0);
+        sintacticoLabel.setText("");
+    }
+
+    public void clearSemanticContent() {
+        JLabel semanticLabel = (JLabel) sintacticoSemanticPanel.getComponent(1);
+        semanticLabel.setText("");
     }
 
     public void logToConsole(String message) {
@@ -198,6 +209,20 @@ public class Interface extends JFrame {
 
     public void setParserButtonEnabled(boolean enabled) {
         parserButton.setEnabled(enabled);
+    }
+
+    public void setSemanticButtonEnabled(boolean enabled){
+        semanticButton.setEnabled(enabled);
+    }
+
+    public void setSintacticoColor(boolean isValid) {
+        sintacticLabel.setOpaque(true);
+        sintacticLabel.setBackground(isValid ? Color.GREEN : new Color(253, 115, 115));
+    }
+
+    public void setSemanticColor(boolean isValid) {
+        semanticLabel.setBackground(isValid ? Color.GREEN : new Color(253, 115, 115));
+        semanticLabel.revalidate();
     }
 
 }

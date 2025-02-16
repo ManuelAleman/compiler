@@ -130,7 +130,12 @@ public class Parser {
                 next();
                 expression();
             }
-        } else {
+        } else if(match(Token.LEFT_PAREN)){
+            next();
+            expression();
+            expect(Token.RIGHT_PAREN, "')'");
+        }
+        else {
             reportError("expression");
         }
     }

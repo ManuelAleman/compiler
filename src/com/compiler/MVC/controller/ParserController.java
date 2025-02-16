@@ -18,9 +18,8 @@ public class ParserController {
     public void parseToken(List<Simbol> simbols){
         parserModel.setTokens(simbols);
         boolean correct = parserModel.parse();
-        System.out.println(correct);
 
-        view.setSintacticoContent(correct ? "TODO BIEN" : "");
+        view.setSintacticoColor(correct);
         view.logToConsole(parserModel.getErrorMessage());
     }
 

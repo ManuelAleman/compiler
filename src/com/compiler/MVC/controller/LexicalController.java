@@ -3,13 +3,12 @@ package com.compiler.MVC.controller;
 import com.compiler.MVC.model.Lexical;
 import com.compiler.MVC.view.Interface;
 import com.compiler.utils.Simbol;
-import com.compiler.utils.Error;
 
 import java.util.List;
 
 public class LexicalController {
-    private Lexical lexicalModel;
-    private Interface view;
+    private final Lexical lexicalModel;
+    private final Interface view;
 
     public LexicalController(Lexical lexicalModel, Interface view) {
         this.lexicalModel = lexicalModel;
@@ -17,23 +16,38 @@ public class LexicalController {
     }
 
     public void analyzeCode() {
-        clearLexical();
-        String code = view.getCode();
+        resetLexicalAnalysis();
+
+        String code = getCodeFromView();
         if (code.isEmpty()) {
-            view.logToConsole("No hay código para analizar");
-            view.setParserButtonEnabled(false);
+            handleEmptyCode();
             return;
         }
+
         lexicalModel.analyze(code);
-        view.setLexicoContent(lexicalModel.getLexicalAsString(), !lexicalModel.getErrors().isEmpty());
-        view.logToConsole(lexicalModel.getErrorAsString());
-        view.setParserButtonEnabled(lexicalModel.getErrors().isEmpty());
+        updateViewWithAnalysisResults();
     }
 
-    private void clearLexical(){
+    private void resetLexicalAnalysis() {
         view.clearLexicoContent();
         view.clearConsoleArea();
         lexicalModel.clearSimbols();
+    }
+
+    private String getCodeFromView() {
+        return view.getCode();
+    }
+
+    private void handleEmptyCode() {
+        view.logToConsole("No hay código para analizar");
+        view.setParserButtonEnabled(false);
+    }
+
+    private void updateViewWithAnalysisResults() {
+        boolean hasErrors = !lexicalModel.getErrors().isEmpty();
+        view.setLexicoContent(lexicalModel.getLexicalAsString(), hasErrors);
+        view.logToConsole(lexicalModel.getErrorAsString());
+        view.setParserButtonEnabled(!hasErrors);
     }
 
     public List<Simbol> getSimbols() {
