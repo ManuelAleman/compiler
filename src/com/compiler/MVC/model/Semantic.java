@@ -1,7 +1,125 @@
 package com.compiler.MVC.model;
 
-public class Semantic {
-    public Semantic(){
+import com.compiler.utils.Simbol;
+import com.compiler.utils.Token;
+import com.compiler.utils.Variable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public class Semantic {
+    private List<Simbol> tokens;
+    private boolean hasError;
+
+    private List<Variable> variable;
+    private Set<String> variableNames;
+
+    private Simbol currentToken;
+    private int index;
+
+    private String errorMessage;
+    public Semantic(){
+        variable = new ArrayList<>();
+        variableNames = new HashSet<>();
+        tokens = new ArrayList<>();
     }
+
+    public void setTokens(List<Simbol> tokens){
+        this.tokens = tokens;
+        variable.clear();
+        variableNames.clear();
+        index = 1;
+        currentToken = tokens.isEmpty() ? null : tokens.get(index);
+        hasError = false;
+        errorMessage = "";
+    }
+
+    private void next() {
+        if (!hasError) {
+            index++;
+            currentToken = index < tokens.size() ? tokens.get(index) : null;
+        }
+    }
+
+    public boolean analyzeSemantic(){
+        if (currentToken == null) {
+            reportError("NO PROGRAM TO ANALYZE");
+            return false;
+        }
+        program();
+        return !hasError;
+    }
+
+    private boolean match(Token expect) {
+        return currentToken != null && currentToken.getTokenType() == expect;
+    }
+
+    private void program() {
+        while (!hasError && currentToken != null){
+            if(match(Token.RW) && isType(currentToken.getValue())){
+                declareVariable();
+            }
+            else if(match(Token.IDENTIFIER)){
+               assignVariable();
+            }
+            next();
+        }
+    }
+
+    private void declareVariable(){
+        String type = currentToken.getValue();
+        next();
+        String name = currentToken.getValue();
+
+        if(variableNames.contains(name)){
+            reportError("Variable declarada anteriormente: " + name);
+            return;
+        }
+        byte bits = switch (type) {
+            case "int" -> 32;
+            case "double" -> 16;
+            case "string" -> 8;
+            default -> 8;
+        };
+        variable.add(new Variable(type, name, "", bits));
+        variableNames.add(name);
+    }
+
+    private void assignVariable(){
+        String name = currentToken.getValue();
+        if (!variableNames.contains(name)) {
+            reportError("Variable no declarada: " + name);
+            return;
+        }
+        next();next();
+        StringBuilder value = new StringBuilder();
+        while (!match(Token.SEMICOLON) && currentToken != null) {
+            value.append(currentToken.getValue()).append(" ");
+            next();
+        }
+        variable.stream()
+                .filter(var -> var.getName().equals(name))
+                .findFirst()
+                .ifPresent(var -> var.setValue(value.toString().trim()));
+    }
+
+
+    private boolean isType(String value) {
+        return "int".equals(value) || "double".equals(value) || "string".equals(value);
+    }
+
+
+    private void reportError(String error) {
+        if (hasError) return;
+        hasError = true;
+        errorMessage = error;
+        System.out.println(errorMessage);
+    }
+
+    public List<Variable> getVariables() {
+        return new ArrayList<>(variable);
+    }
+
 }

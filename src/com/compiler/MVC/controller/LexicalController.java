@@ -48,6 +48,7 @@ public class LexicalController {
         view.setLexicoContent(lexicalModel.getLexicalAsString(), hasErrors);
         view.logToConsole(lexicalModel.getErrorAsString());
         view.setParserButtonEnabled(!hasErrors);
+        view.clearParserSemanticLabels();
     }
 
     public List<Simbol> getSimbols() {

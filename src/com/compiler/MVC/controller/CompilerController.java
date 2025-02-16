@@ -35,7 +35,8 @@ public class CompilerController {
         view.setParserButtonListener(_ -> parserController.parseToken(lexicalController.getSimbols()));
         view.setParserButtonEnabled(false);
 
-        view.setSemanticButtonEnabled(false);
+        view.setSemanticButtonListener(_ -> semanticController.analyzeSemantic(lexicalController.getSimbols()));
+        //view.setSemanticButtonEnabled(false);
     }
 
 

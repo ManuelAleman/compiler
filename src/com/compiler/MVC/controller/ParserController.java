@@ -25,6 +25,5 @@ public class ParserController {
 
     public void clearParser(){
         view.clearConsoleArea();
-        view.clearSintacticoContent();
     }
 }

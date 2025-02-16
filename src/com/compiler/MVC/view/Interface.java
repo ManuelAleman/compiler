@@ -63,7 +63,7 @@ public class Interface extends JFrame {
         JScrollPane codeScrollPane = new JScrollPane(codeArea);
         codeScrollPane.setBorder(BorderFactory.createTitledBorder("Código Fuente"));
 
-        JPanel resultsPanel = new JPanel(new GridLayout(2, 2, 5, 5)); // 2 filas, 2 columnas
+        JPanel resultsPanel = new JPanel(new GridLayout(1, 1, 5, 5));
 
         lexicoArea = new JTextArea();
         lexicoArea.setEditable(false);
@@ -71,7 +71,6 @@ public class Interface extends JFrame {
         lexicoScrollPane.setBorder(BorderFactory.createTitledBorder("Análisis Léxico"));
         resultsPanel.add(lexicoScrollPane);
 
-        // Crear un JPanel para agrupar los dos JLabel (Sintáctico y Semántico)
         sintacticoSemanticPanel = new JPanel(new GridLayout(2, 1, 5, 5));
 
         sintacticLabel = new JLabel();
@@ -102,6 +101,7 @@ public class Interface extends JFrame {
 
         consoleArea = new JTextArea();
         consoleArea.setEditable(false);
+        consoleArea.setFont(new Font("Arial", Font.BOLD , 14));
         JScrollPane consoleScrollPane = new JScrollPane(consoleArea);
         consoleScrollPane.setBorder(BorderFactory.createTitledBorder("Consola"));
         consoleScrollPane.setPreferredSize(new Dimension(getWidth(), 150));
@@ -169,31 +169,10 @@ public class Interface extends JFrame {
     }
 
 
-    public void setBajoNivelContent(String content) {
-        bajoNivelArea.setText(content);
-    }
-
-    public void setBinarioContent(String content) {
-        binarioArea.setText(content);
-    }
-
-    public void clearConsole() {
-        consoleArea.setText("");
-    }
-
     public void clearLexicoContent() {
         lexicoArea.setText("");
     }
 
-    public void clearSintacticoContent() {
-        JLabel sintacticoLabel = (JLabel) sintacticoSemanticPanel.getComponent(0);
-        sintacticoLabel.setText("");
-    }
-
-    public void clearSemanticContent() {
-        JLabel semanticLabel = (JLabel) sintacticoSemanticPanel.getComponent(1);
-        semanticLabel.setText("");
-    }
 
     public void logToConsole(String message) {
         consoleArea.append(message + "\n");
@@ -201,10 +180,6 @@ public class Interface extends JFrame {
 
     public void clearConsoleArea() {
         consoleArea.setText("");
-    }
-
-    public void setLexicalButtonEnabled(boolean enabled) {
-        parserButton.setEnabled(enabled);
     }
 
     public void setParserButtonEnabled(boolean enabled) {
@@ -223,6 +198,11 @@ public class Interface extends JFrame {
     public void setSemanticColor(boolean isValid) {
         semanticLabel.setBackground(isValid ? Color.GREEN : new Color(253, 115, 115));
         semanticLabel.revalidate();
+    }
+
+    public void clearParserSemanticLabels(){
+        semanticLabel.setBackground(null);
+        sintacticLabel.setBackground(null);
     }
 
 }
