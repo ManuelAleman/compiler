@@ -28,15 +28,48 @@ public class CompilerController {
 
     private void initViewListeners() {
         view.setAnalyzeButtonListener(_ -> {
+            resetControlelrs();
             parserController.clearParser();
+            if (isCodeEmpty()) {
+                codeEmpty();
+                return;
+            }
             lexicalController.analyzeCode();
+            updateButtonStatus();
         });
 
-        view.setParserButtonListener(_ -> parserController.parseToken(lexicalController.getSimbols()));
+        view.setParserButtonListener(_ -> {
+            parserController.parseToken(lexicalController.getSimbols());
+            updateButtonStatus();
+        });
         view.setParserButtonEnabled(false);
 
         view.setSemanticButtonListener(_ -> semanticController.analyzeSemantic(lexicalController.getSimbols()));
-        //view.setSemanticButtonEnabled(false);
+        view.setSemanticButtonEnabled(false);
+    }
+
+    private void updateButtonStatus(){
+        boolean isLexerCorrect = lexicalController.isLexicalCorrect();
+        boolean isParserCorrect = parserController.isParserCorrect();
+        boolean isSemanticCorrect = semanticController.isSemanticCorrect();
+
+        view.setParserButtonEnabled(isLexerCorrect);
+        view.setSemanticButtonEnabled(isLexerCorrect && isParserCorrect);
+    }
+
+    private void codeEmpty(){
+        view.logToConsole("No hay código para analizar");
+       resetControlelrs();
+    }
+
+    private boolean isCodeEmpty(){
+        String code = view.getCode();
+        return code == null || code.trim().isEmpty();
+    }
+
+    private void resetControlelrs(){
+        lexicalController.setLexicalCorrect(false);
+        parserController.setParserCorrect(false);
     }
 
 

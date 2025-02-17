@@ -10,14 +10,10 @@ public class Interface extends JFrame {
     private JTextArea codeArea;
     private JTextArea lexicoArea;
     private JPanel sintacticoSemanticPanel;
-    private JTextArea bajoNivelArea;
-    private JTextArea binarioArea;
     private JTextArea consoleArea;
     private JButton analyzeButton;
     private JButton parserButton;
     private JButton semanticButton;
-    private JButton intermediateButton;
-    private JButton objectButton;
 
     private JLabel sintacticLabel;
     private JLabel semanticLabel;
@@ -48,14 +44,10 @@ public class Interface extends JFrame {
         analyzeButton = new JButton("Analizar");
         parserButton = new JButton("Parser");
         semanticButton = new JButton("Semántico");
-        intermediateButton = new JButton("Intermedio");
-        objectButton = new JButton("Objeto");
 
         buttonPanel.add(analyzeButton);
         buttonPanel.add(parserButton);
         buttonPanel.add(semanticButton);
-        //buttonPanel.add(intermediateButton);
-        //buttonPanel.add(objectButton);
 
         add(buttonPanel, BorderLayout.NORTH);
 
@@ -83,17 +75,6 @@ public class Interface extends JFrame {
 
         resultsPanel.add(sintacticoSemanticPanel);
 
-        bajoNivelArea = new JTextArea();
-        bajoNivelArea.setEditable(false);
-        JScrollPane bajoNivelScrollPane = new JScrollPane(bajoNivelArea);
-        bajoNivelScrollPane.setBorder(BorderFactory.createTitledBorder("Código de Bajo Nivel"));
-        //resultsPanel.add(bajoNivelScrollPane);
-
-        binarioArea = new JTextArea();
-        binarioArea.setEditable(false);
-        JScrollPane binarioScrollPane = new JScrollPane(binarioArea);
-        binarioScrollPane.setBorder(BorderFactory.createTitledBorder("Código Binario"));
-        //resultsPanel.add(binarioScrollPane);
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, codeScrollPane, resultsPanel);
         splitPane.setResizeWeight(0.5);
@@ -151,23 +132,14 @@ public class Interface extends JFrame {
         semanticButton.addActionListener(listener);
     }
 
-    public void setIntermediateButtonListener(ActionListener listener) {
-        intermediateButton.addActionListener(listener);
-    }
-
-    public void setObjectButtonListener(ActionListener listener) {
-        objectButton.addActionListener(listener);
-    }
-
     public String getCode() {
         return codeArea.getText();
     }
 
-    public void setLexicoContent(String content, boolean hasErrors) {
+    public void setLexicoContent(String content, boolean lexicalCorrect) {
         lexicoArea.setText(content);
-        lexicoArea.setForeground(hasErrors ? Color.RED : Color.BLACK);
+        lexicoArea.setForeground(lexicalCorrect ? Color.BLACK : Color.RED);
     }
-
 
     public void clearLexicoContent() {
         lexicoArea.setText("");
@@ -196,8 +168,8 @@ public class Interface extends JFrame {
     }
 
     public void setSemanticColor(boolean isValid) {
+        semanticLabel.setOpaque(true);
         semanticLabel.setBackground(isValid ? Color.GREEN : new Color(253, 115, 115));
-        semanticLabel.revalidate();
     }
 
     public void clearParserSemanticLabels(){

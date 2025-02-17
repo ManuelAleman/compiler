@@ -132,7 +132,6 @@ public class Semantic {
             reportError("Asignación inválida: expresión incompleta.");
             return null;
         }
-
         return value.toString().trim();
     }
 
@@ -157,7 +156,7 @@ public class Semantic {
     private boolean isValidTypeOpe(String expectedType) {
         return switch (expectedType) {
             case "int" -> match(Token.NUMBER);
-            case "double" -> match(Token.NUMBER) || match(Token.FRACTION);
+            case "double" -> match(Token.FRACTION);
             case "string" -> match(Token.STRING_VALUE);
             default -> false;
         };
@@ -176,5 +175,9 @@ public class Semantic {
 
     public List<Variable> getVariables() {
         return new ArrayList<>(variable);
+    }
+
+    public String getErrorMessage(){
+        return errorMessage;
     }
 }

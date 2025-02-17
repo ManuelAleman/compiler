@@ -9,20 +9,18 @@ import java.util.List;
 public class LexicalController {
     private final Lexical lexicalModel;
     private final Interface view;
+    private boolean lexicalCorrect;
 
     public LexicalController(Lexical lexicalModel, Interface view) {
         this.lexicalModel = lexicalModel;
         this.view = view;
+        this.lexicalCorrect = false;
     }
 
     public void analyzeCode() {
         resetLexicalAnalysis();
 
         String code = getCodeFromView();
-        if (code.isEmpty()) {
-            handleEmptyCode();
-            return;
-        }
 
         lexicalModel.analyze(code);
         updateViewWithAnalysisResults();
@@ -38,20 +36,21 @@ public class LexicalController {
         return view.getCode();
     }
 
-    private void handleEmptyCode() {
-        view.logToConsole("No hay código para analizar");
-        view.setParserButtonEnabled(false);
-    }
-
     private void updateViewWithAnalysisResults() {
-        boolean hasErrors = !lexicalModel.getErrors().isEmpty();
-        view.setLexicoContent(lexicalModel.getLexicalAsString(), hasErrors);
+        lexicalCorrect = lexicalModel.getErrors().isEmpty();
+        view.setLexicoContent(lexicalModel.getLexicalAsString(), lexicalCorrect);
         view.logToConsole(lexicalModel.getErrorAsString());
-        view.setParserButtonEnabled(!hasErrors);
         view.clearParserSemanticLabels();
     }
 
     public List<Simbol> getSimbols() {
         return lexicalModel.getSimbols();
+    }
+
+    public boolean isLexicalCorrect() {
+        return lexicalCorrect;
+    }
+    public void setLexicalCorrect(boolean status){
+        this.lexicalCorrect = status;
     }
 }

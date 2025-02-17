@@ -10,20 +10,28 @@ import java.util.List;
 public class SemanticController {
     private final Semantic semanticModel;
     private final Interface view;
+    private boolean semanticCorrect;
 
     public SemanticController(Semantic semanticModel, Interface view) {
         this.semanticModel = semanticModel;
         this.view = view;
+        this.semanticCorrect = false;
     }
 
     public void analyzeSemantic(List<Simbol> tokens){
         semanticModel.setTokens(tokens);
 
-        boolean status = semanticModel.analyzeSemantic();
-        if(status){
+        semanticCorrect = semanticModel.analyzeSemantic();
+        if(semanticCorrect){
             for(Variable v : semanticModel.getVariables()){
                 System.out.println(v);
             }
         }
+        view.setSemanticColor(semanticCorrect);
+        view.logToConsole(semanticModel.getErrorMessage());
+    }
+
+    public boolean isSemanticCorrect(){
+        return semanticCorrect;
     }
 }

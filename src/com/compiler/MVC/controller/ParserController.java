@@ -9,21 +9,31 @@ import java.util.List;
 public class ParserController {
     private Parser parserModel;
     private Interface view;
+    private boolean parserCorrect;
 
     public ParserController(Parser parserModel, Interface view){
         this.parserModel = parserModel;
         this.view = view;
+        this.parserCorrect = false;
     }
 
     public void parseToken(List<Simbol> simbols){
         parserModel.setTokens(simbols);
-        boolean correct = parserModel.parse();
+        parserCorrect = parserModel.parse();
 
-        view.setSintacticoColor(correct);
+        view.setSintacticoColor(parserCorrect);
         view.logToConsole(parserModel.getErrorMessage());
     }
 
     public void clearParser(){
         view.clearConsoleArea();
+    }
+
+    public boolean isParserCorrect() {
+        return parserCorrect;
+    }
+
+    public void setParserCorrect(boolean status){
+        this.parserCorrect = status;
     }
 }
