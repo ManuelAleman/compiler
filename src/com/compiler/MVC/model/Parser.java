@@ -220,7 +220,6 @@ public class Parser {
             errorMessage = "Error: Fin de entrada inesperado, se esperaba " + expected + ".";
         } else {
             errorMessage = "Error en línea " + currentToken.getPosition().getRow() +
-                    ", columna " + currentToken.getPosition().getColumn() +
                     ": se esperaba " + expected + " pero se encontró '" + currentToken.getValue() + "'.";
         }
     }

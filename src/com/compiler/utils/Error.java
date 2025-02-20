@@ -20,6 +20,6 @@ public class Error {
 
     @Override
     public String toString() {
-        return "Error: " + invalidValue + " at " + position;
+        return "Error: " + invalidValue + " en " + position;
     }
 }

@@ -60,9 +60,44 @@ public class Semantic {
     private void program() {
         while (!hasError && currentToken != null) {
             if (match(Token.RW) && isType(currentToken.getValue())) {
+                System.out.println("entrada 4");
                 declareVariable();
             } else if (match(Token.IDENTIFIER)) {
+                System.out.println("entrada 3");
                 assignVariable();
+            }else if (match(Token.RW) && "if".equals(currentToken.getValue())){
+                System.out.println("entrada 2");
+                ifSentence();
+            }else if(match(Token.RW) && "print".equals(currentToken.getValue())){
+                inOutSentence();
+            }else if(match(Token.RW) && "read".equals(currentToken.getValue())){
+                inOutSentence();
+            }
+            next();
+        }
+    }
+
+    private void inOutSentence(){
+        next();next();
+        if(!variableNames.contains(currentToken.getValue())){
+            reportError("Identificador '" + currentToken.getValue() + "' no declarado");
+        }
+    }
+
+    private void ifSentence(){
+        next();next();
+        if (match(Token.IDENTIFIER) || match(Token.NUMBER) || match(Token.FRACTION) || match(Token.STRING_VALUE)) {
+            if (match(Token.IDENTIFIER) && !variableNames.contains(currentToken.getValue())) {
+                reportError("Identificador no declarado: " + currentToken.getValue());
+                return;
+            }
+            next();
+        }
+       next();
+        if (match(Token.IDENTIFIER) || match(Token.NUMBER) || match(Token.FRACTION) || match(Token.STRING_VALUE)) {
+            if (match(Token.IDENTIFIER) && !variableNames.contains(currentToken.getValue())) {
+                reportError("Identificador no declarado: " + currentToken.getValue());
+                return;
             }
             next();
         }
@@ -101,7 +136,6 @@ public class Semantic {
 
         String assignedValue = extractAssignmentValue(variableToAssign.getType());
         if (assignedValue == null) return;
-
         variableToAssign.setValue(assignedValue);
     }
 
@@ -124,7 +158,7 @@ public class Semantic {
                 expectOperand = true;
             }
 
-            value.append(currentToken.getValue()).append(" ");
+            value.append(currentToken.getValue());
             next();
         }
 
@@ -135,13 +169,6 @@ public class Semantic {
         return value.toString().trim();
     }
 
-    private boolean isArithOperator(Simbol token) {
-        if (token == null) return false;
-        return switch (token.getTokenType()) {
-            case PLUS, MINUS, TIMES, DIVIDE -> true;
-            default -> false;
-        };
-    }
 
     private Variable getVariableByName(String name) {
         return variable.stream()
@@ -166,6 +193,13 @@ public class Semantic {
         return "int".equals(value) || "double".equals(value) || "string".equals(value);
     }
 
+    private boolean isArithOperator(Simbol token) {
+        if (token == null) return false;
+        return switch (token.getTokenType()) {
+            case PLUS, MINUS, TIMES, DIVIDE -> true;
+            default -> false;
+        };
+    }
     private void reportError(String error) {
         if (hasError) return;
         hasError = true;

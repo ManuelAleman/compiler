@@ -10,4 +10,8 @@ START
 	} else {
 	    print("Es menor de edad");
 	}
+@%
+
+[
+
 ENDE

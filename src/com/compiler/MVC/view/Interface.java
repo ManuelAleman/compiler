@@ -164,12 +164,12 @@ public class Interface extends JFrame {
 
     public void setSintacticoColor(boolean isValid) {
         sintacticLabel.setOpaque(true);
-        sintacticLabel.setBackground(isValid ? Color.GREEN : new Color(253, 115, 115));
+        sintacticLabel.setBackground(isValid ? new Color(176, 255, 208) : new Color(253, 115, 115));
     }
 
     public void setSemanticColor(boolean isValid) {
         semanticLabel.setOpaque(true);
-        semanticLabel.setBackground(isValid ? Color.GREEN : new Color(253, 115, 115));
+        semanticLabel.setBackground(isValid ? new Color(176, 255, 208) : new Color(253, 115, 115));
     }
 
     public void clearParserSemanticLabels(){
