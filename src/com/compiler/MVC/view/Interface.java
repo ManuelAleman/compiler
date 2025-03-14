@@ -9,11 +9,13 @@ public class Interface extends JFrame {
 
     private JTextArea codeArea;
     private JTextArea lexicoArea;
+    private JTextArea lowLevelArea;
     private JPanel sintacticoSemanticPanel;
     private JTextArea consoleArea;
     private JButton analyzeButton;
     private JButton parserButton;
     private JButton semanticButton;
+    private JButton lowLevelButton;
 
     private JLabel sintacticLabel;
     private JLabel semanticLabel;
@@ -44,10 +46,11 @@ public class Interface extends JFrame {
         analyzeButton = new JButton("Analizar");
         parserButton = new JButton("Parser");
         semanticButton = new JButton("Semántico");
-
+        lowLevelButton = new JButton("Código de Bajo Nivel");
         buttonPanel.add(analyzeButton);
         buttonPanel.add(parserButton);
         buttonPanel.add(semanticButton);
+        buttonPanel.add(lowLevelButton);
 
         add(buttonPanel, BorderLayout.NORTH);
 
@@ -63,7 +66,7 @@ public class Interface extends JFrame {
         lexicoScrollPane.setBorder(BorderFactory.createTitledBorder("Análisis Léxico"));
         resultsPanel.add(lexicoScrollPane);
 
-        sintacticoSemanticPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+        sintacticoSemanticPanel = new JPanel(new GridLayout(2, 2, 5, 5));
 
         sintacticLabel = new JLabel();
         sintacticLabel.setBorder(BorderFactory.createTitledBorder("Análisis Sintáctico"));
@@ -72,8 +75,13 @@ public class Interface extends JFrame {
 
         sintacticoSemanticPanel.add(sintacticLabel);
         sintacticoSemanticPanel.add(semanticLabel);
-
         resultsPanel.add(sintacticoSemanticPanel);
+
+        lowLevelArea = new JTextArea();
+        lowLevelArea.setEditable(false);
+        JScrollPane lowLevelScrollPane = new JScrollPane(lowLevelArea);
+        lowLevelScrollPane.setBorder(BorderFactory.createTitledBorder("Código de Bajo Nivel"));
+        resultsPanel.add(lowLevelScrollPane);
 
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, codeScrollPane, resultsPanel);
@@ -132,6 +140,10 @@ public class Interface extends JFrame {
         semanticButton.addActionListener(listener);
     }
 
+    public void setLowLevelButtonListener(ActionListener listener) {
+        lowLevelButton.addActionListener(listener);
+    }
+
     public String getCode() {
         return codeArea.getText();
     }
@@ -145,6 +157,13 @@ public class Interface extends JFrame {
         lexicoArea.setText("");
     }
 
+    public void setLowLevelContent(String content){
+        lowLevelArea.setText(content);
+    }
+
+    public void clearLowLevelContent(){
+        lowLevelArea.setText("");
+    }
 
     public void logToConsole(String message) {
         consoleArea.append(message + "\n");
@@ -160,6 +179,10 @@ public class Interface extends JFrame {
 
     public void setSemanticButtonEnabled(boolean enabled){
         semanticButton.setEnabled(enabled);
+    }
+
+    public void setLowLevelButtonEnabled(boolean enabled){
+        lowLevelButton.setEnabled(enabled);
     }
 
     public void setSintacticoColor(boolean isValid) {

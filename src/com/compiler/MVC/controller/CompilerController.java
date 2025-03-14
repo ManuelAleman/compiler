@@ -1,6 +1,7 @@
 package com.compiler.MVC.controller;
 
 import com.compiler.MVC.model.Lexical;
+import com.compiler.MVC.model.LowLevel;
 import com.compiler.MVC.model.Parser;
 import com.compiler.MVC.model.Semantic;
 import com.compiler.MVC.view.Interface;
@@ -9,6 +10,7 @@ public class CompilerController {
     private LexicalController lexicalController;
     private ParserController parserController;
     private SemanticController semanticController;
+    private LowLevelController lowLevelController;
     private Interface view;
 
     public CompilerController(Interface view) {
@@ -24,11 +26,14 @@ public class CompilerController {
         this.parserController = new ParserController(parserModel, view);
         Semantic semanticModel = new Semantic();
         this.semanticController = new SemanticController(semanticModel, view);
+        LowLevel lowLevelModel = new LowLevel();
+        this.lowLevelController = new LowLevelController(lowLevelModel, view);
+
     }
 
     private void initViewListeners() {
         view.setAnalyzeButtonListener(_ -> {
-            resetControlelrs();
+            resetControllers();
             parserController.clearParser();
             if (isCodeEmpty()) {
                 codeEmpty();
@@ -44,8 +49,16 @@ public class CompilerController {
         });
         view.setParserButtonEnabled(false);
 
-        view.setSemanticButtonListener(_ -> semanticController.analyzeSemantic(lexicalController.getSimbols()));
+        view.setSemanticButtonListener(_ -> {
+            semanticController.analyzeSemantic(lexicalController.getSimbols());
+            updateButtonStatus();
+        });
         view.setSemanticButtonEnabled(false);
+
+        view.setLowLevelButtonListener(_ -> {
+            lowLevelController.generateLowLevelCode(semanticController.getVariables(), lexicalController.getSimbols());
+        });
+        view.setLowLevelButtonEnabled(false);
     }
 
     private void updateButtonStatus(){
@@ -55,11 +68,12 @@ public class CompilerController {
 
         view.setParserButtonEnabled(isLexerCorrect);
         view.setSemanticButtonEnabled(isLexerCorrect && isParserCorrect);
+        view.setLowLevelButtonEnabled(isLexerCorrect && isParserCorrect && isSemanticCorrect);
     }
 
     private void codeEmpty(){
         view.logToConsole("No hay código para analizar");
-       resetControlelrs();
+        resetControllers();
     }
 
     private boolean isCodeEmpty(){
@@ -67,10 +81,10 @@ public class CompilerController {
         return code == null || code.trim().isEmpty();
     }
 
-    private void resetControlelrs(){
+    private void resetControllers(){
         lexicalController.setLexicalCorrect(false);
         parserController.setParserCorrect(false);
+        semanticController.setSemanticCorrect(false);
     }
-
 
 }

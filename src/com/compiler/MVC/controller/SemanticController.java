@@ -34,4 +34,12 @@ public class SemanticController {
     public boolean isSemanticCorrect(){
         return semanticCorrect;
     }
+
+    public List<Variable> getVariables(){
+        return semanticModel.getVariables();
+    }
+
+    public void setSemanticCorrect(boolean semanticCorrect) {
+        this.semanticCorrect = semanticCorrect;
+    }
 }

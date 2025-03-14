@@ -60,13 +60,11 @@ public class Semantic {
     private void program() {
         while (!hasError && currentToken != null) {
             if (match(Token.RW) && isType(currentToken.getValue())) {
-                System.out.println("entrada 4");
                 declareVariable();
             } else if (match(Token.IDENTIFIER)) {
-                System.out.println("entrada 3");
                 assignVariable();
             }else if (match(Token.RW) && "if".equals(currentToken.getValue())){
-                System.out.println("entrada 2");
+
                 ifSentence();
             }else if(match(Token.RW) && "print".equals(currentToken.getValue())){
                 inOutSentence();
@@ -115,7 +113,6 @@ public class Semantic {
         byte bits = switch (type) {
             case "int" -> 32;
             case "double" -> 16;
-            case "string" -> 8;
             default -> 8;
         };
         variable.add(new Variable(type, name, "", bits));
