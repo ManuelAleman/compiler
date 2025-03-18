@@ -24,6 +24,7 @@ public class LowLevel {
 
     public void analizeLowLevel(){
         generateDataSegment();
+        generateCodeSegment();
     }
 
     private void generateDataSegment(){
@@ -31,6 +32,10 @@ public class LowLevel {
         for (Variable variable : variables) {
             lowLevelCode.append(LowLevelTemplate.dataTemplate(variable));
         }
+    }
+
+    private void generateCodeSegment(){
+        lowLevelCode.append(".CODE\n");
     }
 
     public String getLowLevelCode() {

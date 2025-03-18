@@ -22,11 +22,6 @@ public class SemanticController {
         semanticModel.setTokens(tokens);
 
         semanticCorrect = semanticModel.analyzeSemantic();
-        if(semanticCorrect){
-            for(Variable v : semanticModel.getVariables()){
-                System.out.println(v);
-            }
-        }
         view.setSemanticColor(semanticCorrect);
         view.logToConsole(semanticModel.getErrorMessage());
     }
