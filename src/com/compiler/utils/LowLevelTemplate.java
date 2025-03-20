@@ -28,4 +28,16 @@ public class LowLevelTemplate {
     public static String divTemplate(String destination, String source) {
         return "\tDIV " + destination + ", " + source + "\n";
     }
+
+    public static String stringAssigmentTemplate(String varName, String stringValue) {
+        StringBuilder stringCode = new StringBuilder();
+        char[] characters = stringValue.toCharArray();
+
+        for (int j = 0; j < characters.length; j++) {
+            stringCode.append("	MOV	 [").append(varName).append(" + ").append(j).append("], '").append(characters[j]).append("'\n");
+        }
+
+        return stringCode.toString();
+    }
+
 }

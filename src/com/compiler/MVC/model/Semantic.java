@@ -64,7 +64,6 @@ public class Semantic {
             } else if (match(Token.IDENTIFIER)) {
                 assignVariable();
             }else if (match(Token.RW) && "if".equals(currentToken.getValue())){
-
                 ifSentence();
             }else if(match(Token.RW) && "print".equals(currentToken.getValue())){
                 inOutSentence();
