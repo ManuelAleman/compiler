@@ -15,7 +15,6 @@ public class LowLevel {
     private List<Simbol> tokens;
     private Simbol currentToken;
     private int index;
-    private int labelCounter = 0;
 
     public LowLevel() {
         variables = new ArrayList<>();
@@ -31,7 +30,6 @@ public class LowLevel {
         currentToken = tokens.isEmpty() ? null : tokens.get(index);
         lowLevelCode = new StringBuilder();
         auxProcedures = new StringBuilder();
-        labelCounter = 0;
     }
 
     public void analizeLowLevel() {
@@ -45,15 +43,15 @@ public class LowLevel {
     private void generateDataSegment() {
         lowLevelCode.append(".DATA\n");
         variables.forEach(variable ->
-                lowLevelCode.append(LowLevelTemplate.dataTemplate(variable))
+                lowLevelCode.append(LowLevelTemplate.dataTemplate(variable, 1))
         );
     }
 
     private void generateCodeSegment() {
         lowLevelCode.append(".CODE\n")
                 .append("main:\n")
-                .append(LowLevelTemplate.movTemplate("AX", "@DATA"))
-                .append(LowLevelTemplate.movTemplate("DS", "AX")).append("\n");
+                .append(LowLevelTemplate.movTemplate("AX", "@DATA", 1))
+                .append(LowLevelTemplate.movTemplate("DS", "AX", 1)).append("\n");
 
         while (currentToken != null) {
             processToken();
@@ -61,7 +59,7 @@ public class LowLevel {
         }
 
         lowLevelCode.append(auxProcedures)
-                .append(LowLevelTemplate.endOfProgram())
+                .append(LowLevelTemplate.endOfProgram(1))
                 .append("\nEND main");
     }
 
@@ -74,14 +72,14 @@ public class LowLevel {
             String value = currentToken.getValue();
             if (isType(value)) {
                 consumeLine();
-            } else if ("if".equals(value)) {
-                generateIfTree();
             } else if ("print".equals(value)) {
                 next();
                 next();
-                lowLevelCode.append(LowLevelTemplate.printTemplate(currentToken.getValue()));
-            } else if ("ENDE".equals(value)) {
-                lowLevelCode.append("   JMP ENDE0\n");
+                if(match(Token.STRING_VALUE)){
+                    lowLevelCode.append(LowLevelTemplate.printStringTemplate(currentToken.getValue(), 1));
+                }else{
+                    lowLevelCode.append(LowLevelTemplate.prinIdTemplate(currentToken.getValue(), 1));
+                }
             }
         } else if (match(Token.IDENTIFIER)) {
             processAssignment();
@@ -89,63 +87,18 @@ public class LowLevel {
     }
 
     private void processAssignment() {
-        String varName = currentToken.getValue();
+        Variable variable = getVariable(currentToken.getValue());
         next();
-        if (match(Token.ASSIGN)) {
-            next();
-            if (match(Token.FRACTION) || match(Token.NUMBER)) {
-                lowLevelCode.append(LowLevelTemplate.movTemplate(varName, currentToken.getValue())).append("\n");
-            } else if (match(Token.STRING_VALUE)) {
-                lowLevelCode.append(LowLevelTemplate.stringAssigmentTemplate(varName, currentToken.getValue())).append("\n");
-            }
-            next();
+        next();
+        if(match(Token.STRING_VALUE)){
+            lowLevelCode.append(LowLevelTemplate.stringAssigmentTemplate(variable.getName(), currentToken.getValue(), 1));
+        }else {
+            String value = variable.getValue();
+            lowLevelCode.append(LowLevelTemplate.expressionAssigmentTemplate(variable.getName(), value, 1)).append("\n");
         }
+        consumeLine();
     }
 
-    private void generateIfTree() {
-        next();
-        next();
-
-        if (match(Token.IDENTIFIER)) {
-            String varName = currentToken.getValue();
-            next();
-            String operator = currentToken.getValue();
-            next();
-
-            if (match(Token.NUMBER) || match(Token.FRACTION)) {
-                String value = currentToken.getValue();
-                lowLevelCode.append(LowLevelTemplate.movTemplate("AX", varName))
-                        .append(LowLevelTemplate.movTemplate("BX", value))
-                        .append("\tCMP AX, BX\n");
-
-                appendConditionalJump(operator);
-                lowLevelCode.append("ELSE").append(labelCounter).append("\n");
-                lowLevelCode.append("\n");
-                next();
-                next();
-                generateBlock("ELSE");
-                lowLevelCode.append("\n");
-                labelCounter++;
-            }
-        }
-    }
-
-    private void generateBlock(String procedureName) {
-        auxProcedures.append(procedureName).append(labelCounter).append(":\n");
-        while (currentToken != null && !match(Token.RIGHT_BRACE)) {
-            if (match(Token.IDENTIFIER)) {
-                processAssignment();
-            } else if (match(Token.RW) && "if".equals(currentToken.getValue())) {
-                generateIfTree();
-            } else if (match(Token.RW) && "print".equals(currentToken.getValue())) {
-                next();
-                next();
-                auxProcedures.append(LowLevelTemplate.printTemplate(currentToken.getValue()));
-            }
-            next();
-        }
-        next();
-    }
 
     private void next() {
         index++;
@@ -167,32 +120,14 @@ public class LowLevel {
         return "int".equals(value) || "double".equals(value) || "string".equals(value);
     }
 
-    private void appendConditionalJump(String operator) {
-        switch (operator) {
-            case "==":
-                lowLevelCode.append("\tJE ");
-                break;
-            case "<>":
-                lowLevelCode.append("\tJNE ");
-                break;
-            case ">":
-                lowLevelCode.append("\tJG ");
-                break;
-            case "<":
-                lowLevelCode.append("\tJL ");
-                break;
-            case ">=":
-                lowLevelCode.append("\tJGE ");
-                break;
-            case "<=":
-                lowLevelCode.append("\tJLE ");
-                break;
-            default:
-                throw new IllegalArgumentException("Operador no soportado: " + operator);
+    public Variable getVariable(String varName){
+        for (Variable variable : variables) {
+            if (variable.getName().equals(varName)) {
+                return variable;
+            }
         }
-
+        return null;
     }
-
     public String getLowLevelCode() {
         return lowLevelCode.toString();
     }

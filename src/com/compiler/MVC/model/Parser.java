@@ -183,10 +183,10 @@ public class Parser {
 
     private void printBlock() {
         expect(Token.LEFT_PAREN, "'('");
-        if (match(Token.IDENTIFIER) || match(Token.STRING_VALUE)) {
+        if (match(Token.IDENTIFIER)) {
             next();
         } else {
-            reportError("identifier o string literal");
+            reportError("identifier");
         }
         expect(Token.RIGHT_PAREN, "')'");
     }

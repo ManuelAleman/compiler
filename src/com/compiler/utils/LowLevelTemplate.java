@@ -1,70 +1,104 @@
 package com.compiler.utils;
 
 public class LowLevelTemplate {
-    public static String dataTemplate(Variable variable) {
-        return switch (variable.getType()) {
-            case "int" -> "\t" + variable.getName() + " dw ?\n";
-            case "double" -> "\t" + variable.getName() + " dd ?\n";
-            default -> "\t" + variable.getName() + " db 256 DUP(\"$\")\n";
+
+    private static String generateTabs(int tabs) {
+        return "\t".repeat(tabs);
+    }
+
+    public static String dataTemplate(Variable variable, int tabs) {
+        String formattedData = switch (variable.getType()) {
+            case "int" -> String.format("%-20s %-3s ?", variable.getName(), "dw");
+            case "double" -> String.format("%-20s %-3s ?", variable.getName(), "dd");
+            default -> String.format("%-20s %-3s 256 DUP(\"$\")", variable.getName(), "db");
         };
+        return generateTabs(tabs) + formattedData + "\n";
     }
 
-    public static String printTemplate(String variable) {
-        return "\tMOV AH, 09h\n" +
-                "\tLEA DX, " + variable + "\n" +
-                "\tINT 21h\n" + "\n";
-    }
-
-    public static String movTemplate(String destination, String source) {
-        return "\tMOV " + destination + ", " + source + "\n";
-    }
-
-    public static String addTemplate(String destination, String source) {
-        return "\tADD " + destination + ", " + source + "\n";
-    }
-
-    public static String subTemplate(String destination, String source) {
-        return "\tSUB " + destination + ", " + source + "\n";
-    }
-
-    public static String mulTemplate(String operand) {
-        return "\tMOV AX, " + operand + "\n" +
-                "\tMUL BX\n";
-    }
-
-    public static String divTemplate(String operand) {
-        return "\tMOV AX, " + operand + "\n" +
-                "\tMOV DX, 0\n" +
-                "\tDIV BX\n";
-    }
-
-
-    public static String stringAssigmentTemplate(String varName, String stringValue) {
+    public static String stringAssigmentTemplate(String varName, String stringValue, int tabs) {
         StringBuilder stringCode = new StringBuilder();
         char[] characters = stringValue.toCharArray();
 
         for (int j = 0; j < characters.length; j++) {
-            stringCode.append("	MOV	 [").append(varName).append(" + ").append(j).append("], '").append(characters[j]).append("'\n");
+            stringCode.append(generateTabs(tabs))
+                    .append(String.format("MOV [%-20s + %d], '%c'\n", varName, j, characters[j]));
         }
 
         return stringCode.toString();
     }
 
-    public static String printStringTemplate(String varName) {
-        return "	MOV	 DX, OFFSET " + varName + "\n" +
-                "	MOV	 AH, 09h\n" +
-                "	INT	 21h\n";
+    public static String expressionAssigmentTemplate(String varName, String expression, int tabs) {
+        String assemblyCode = "";
+
+        if (!expression.contains("+") && !expression.contains("-") && !expression.contains("*") && !expression.contains("/")) {
+            assemblyCode += movTemplate(varName, expression, tabs);
+        } else {
+            if (expression.contains("+")) {
+                String[] parts = expression.split("\\+");
+                String leftPart = parts[0].trim();
+                String rightPart = parts[1].trim();
+                assemblyCode += movTemplate("AX", leftPart, tabs);
+                assemblyCode += addTemplate("AX", rightPart, tabs);
+            } else if (expression.contains("-")) {
+                String[] parts = expression.split("-");
+                String leftPart = parts[0].trim();
+                String rightPart = parts[1].trim();
+                assemblyCode += movTemplate("AX", leftPart, tabs);
+                assemblyCode += subTemplate("AX", rightPart, tabs);
+            } else if (expression.contains("*")) {
+                String[] parts = expression.split("\\*");
+                String leftPart = parts[0].trim();
+                String rightPart = parts[1].trim();
+                assemblyCode += movTemplate("AX", leftPart, tabs);
+                assemblyCode += generateTabs(tabs) + String.format("IMUL AX, %-10s\n", rightPart);
+            } else if (expression.contains("/")) {
+                String[] parts = expression.split("/");
+                String leftPart = parts[0].trim();
+                String rightPart = parts[1].trim();
+                assemblyCode += movTemplate("AX", leftPart, tabs);
+                assemblyCode += generateTabs(tabs) + "XOR DX, DX\n";
+                assemblyCode += generateTabs(tabs) + String.format("DIV %-10s\n", rightPart);
+            }
+            assemblyCode += movTemplate(varName, "AX", tabs);
+        }
+
+        return assemblyCode;
     }
 
-    public static String prinIdTemplate(String varName) {
-        return "\tMOV AH, 09h\n" +
-                "\tLEA DX, " + varName + "\n" +
-                "\tINT 21h\n";
+    public static String printStringTemplate(String varName, int tabs) {
+        return generateTabs(tabs) + String.format("MOV DX, OFFSET %-20s\n", varName) +
+                generateTabs(tabs) + "MOV AH, 09h\n" +
+                generateTabs(tabs) + "INT 21h\n";
     }
 
-    public static String endOfProgram() {
-        return  "ENDE0" + ":" + "\n" +
-                "    MOV AH, 4Ch" + "\n" +
-                "    INT 21h\n";
+    public static String prinIdTemplate(String varName, int tabs) {
+        return generateTabs(tabs) + "MOV AH, 09h\n" +
+                generateTabs(tabs) + "LEA DX, " + varName + "\n" +
+                generateTabs(tabs) + "INT 21h\n";
     }
+
+
+    public static String endOfProgram(int tabs) {
+        return generateTabs(tabs) + "JMP ENDE0\n" +
+                "ENDE0:\n" +
+                generateTabs(tabs) + movTemplate("AH", "4Ch", 0) +
+                generateTabs(tabs) + intTemplate();
+    }
+
+    private static String intTemplate() {
+        return generateTabs(0) + String.format("%-7s %s\n", "INT", "21h");
+    }
+
+    public static String movTemplate(String destination, String source, int tabs) {
+        return generateTabs(tabs) + String.format("%-6s %-10s, %s\n", "MOV", destination, source);
+    }
+
+    public static String addTemplate(String destination, String source, int tabs) {
+        return generateTabs(tabs) + String.format("%-6s %-10s, %s\n", "ADD", destination, source);
+    }
+
+    public static String subTemplate(String destination, String source, int tabs) {
+        return generateTabs(tabs) + String.format("%-6s %-10s, %s\n", "SUB", destination, source);
+    }
+
 }
