@@ -7,6 +7,7 @@ import com.compiler.utils.Variable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 public class LowLevel {
     private StringBuilder lowLevelCode;
@@ -17,6 +18,7 @@ public class LowLevel {
     private int ifLabelCount;
     private int showLabelCount;
     private int readLabelCount;
+    private Stack<Integer> ifLabelStack;
 
     public LowLevel() {
         variables = new ArrayList<>();
@@ -31,7 +33,7 @@ public class LowLevel {
         ifLabelCount = 0;
         showLabelCount = 0;
         readLabelCount = 0;
-
+        ifLabelStack = new Stack<>();
         currentToken = tokens.isEmpty() ? null : tokens.get(index);
         lowLevelCode = new StringBuilder();
     }
@@ -48,7 +50,7 @@ public class LowLevel {
         variables.forEach(variable ->
                 lowLevelCode.append(LowLevelTemplate.dataTemplate(variable, 1))
         );
-        lowLevelCode.append(String.format("%-20s %-3s %s", "new_line", "db", "0Dh, 0Ah, '$'")).append("\n");
+        lowLevelCode.append("\t").append(String.format("%-5s %-3s %s", "new_line", "db", "0Dh, 0Ah, '$'")).append("\n");
 
     }
 
@@ -105,6 +107,9 @@ public class LowLevel {
     }
 
     private void processIf() {
+        int currentIfLabel = ifLabelCount++;
+        ifLabelStack.push(currentIfLabel);
+
         next();
         next();
         String val1 = currentToken.getValue();
@@ -114,13 +119,19 @@ public class LowLevel {
         String val2 = currentToken.getValue();
         next();
         next();
-        lowLevelCode.append(LowLevelTemplate.CompTemplate(val1, op, val2, 1, ifLabelCount));
+
+        lowLevelCode.append(LowLevelTemplate.CompTemplate(val1, op, val2, 1, currentIfLabel));
+
         while (!match(Token.RIGHT_BRACE)) {
             next();
             processToken();
         }
-        lowLevelCode.append("\t").append("JMP END_IF").append(ifLabelCount).append("\n");
-        lowLevelCode.append("ELSE").append(ifLabelCount).append(":\n");
+
+        lowLevelCode.append("\t").append("JMP END_IF").append(currentIfLabel).append("\n");
+
+
+        lowLevelCode.append("ELSE").append(currentIfLabel).append(":\n");
+
         next();
         if (match(Token.RW) && "else".equals(currentToken.getValue())) {
             next();
@@ -130,8 +141,10 @@ public class LowLevel {
                 next();
             }
         }
-        lowLevelCode.append("END_IF").append(ifLabelCount).append(":\n");
-        ifLabelCount++;
+
+        lowLevelCode.append("END_IF").append(currentIfLabel).append(":\n");
+
+        ifLabelStack.pop();
     }
 
     private void processAssignment() {

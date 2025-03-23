@@ -8,9 +8,9 @@ public class LowLevelTemplate {
 
     public static String dataTemplate(Variable variable, int tabs) {
         String formattedData = switch (variable.getType()) {
-            case "int" -> String.format("%-20s %-3s ?", variable.getName(), "dw");
-            case "double" -> String.format("%-20s %-3s ?", variable.getName(), "dd");
-            default -> String.format("%-20s %-3s 256 DUP(\"$\")", variable.getName(), "db");
+            case "int" -> String.format("%-5s %-3s ?", variable.getName(), "dw");
+            case "double" -> String.format("%-5s %-3s ?", variable.getName(), "dd");
+            default -> String.format("%-5s %-3s 256 DUP(\"$\")", variable.getName(), "db");
         };
         return generateTabs(tabs) + formattedData + "\n";
     }
@@ -21,7 +21,7 @@ public class LowLevelTemplate {
 
         for (int j = 0; j < characters.length; j++) {
             stringCode.append(generateTabs(tabs))
-                    .append(String.format("MOV [%-20s + %d], '%c'\n", varName, j, characters[j]));
+                    .append(String.format("MOV [%s + %d], '%c'\n", varName, j, characters[j]));
         }
 
         return stringCode.toString();
@@ -59,7 +59,7 @@ public class LowLevelTemplate {
     }
 
     public static String printStringTemplate(String varName, int tabs) {
-        return generateTabs(tabs) + String.format("MOV DX, OFFSET %-20s\n", varName) +
+        return generateTabs(tabs) + String.format("MOV DX, OFFSET %-3s\n", varName) +
                 generateTabs(tabs) + "MOV AH, 09h\n" +
                 generateTabs(tabs) + "INT 21h\n" +
                 nextLine(tabs);
@@ -72,11 +72,11 @@ public class LowLevelTemplate {
                 generateTabs(tabs) + "INT 21h\n" +
                 generateTabs(tabs) + "CMP AL, 0Dh\n" +
                 generateTabs(tabs) + "JE FIN" + labelCount + "\n" +
-                generateTabs(tabs) + "MOV [%-20s + SI], AL\n".formatted(varName) +
+                generateTabs(tabs) + "MOV [%-3s + SI], AL\n".formatted(varName) +
                 generateTabs(tabs) + "INC SI\n" +
                 generateTabs(tabs) + "JMP LEER" + labelCount + "\n" +
                 "FIN" + labelCount + ":\n" +
-                generateTabs(tabs) + "MOV [%-20s + SI], '$'\n".formatted(varName) +
+                generateTabs(tabs) + "MOV [%3s + SI], '$'\n".formatted(varName) +
                 nextLine(tabs);
     }
 
@@ -96,7 +96,7 @@ public class LowLevelTemplate {
                 generateTabs(tabs) + "ADD BX, CX\n" +
                 generateTabs(tabs) + "JMP LEERNUM" + labelCount + "\n" +
                 "FINNUM" + labelCount + ":\n" +
-                generateTabs(tabs) + "MOV [%-20s], BX\n".formatted(varName) +
+                generateTabs(tabs) + "MOV [%-3s], BX\n".formatted(varName) +
                 nextLine(tabs);
     }
 
@@ -133,7 +133,7 @@ public class LowLevelTemplate {
     }
 
     public static String movTemplate(String destination, String source, int tabs) {
-        return generateTabs(tabs) + String.format("%-6s %-10s, %s\n", "MOV", destination, source);
+        return generateTabs(tabs) + String.format("%-3s %-3s, %s\n", "MOV", destination, source);
     }
 
     public static String addTemplate(String destination, String source, int tabs) {
@@ -151,11 +151,11 @@ public class LowLevelTemplate {
     }
 
     private static String intTemplate() {
-        return generateTabs(0) + String.format("%-7s %s\n", "INT", "21h");
+        return generateTabs(0) + String.format("%-3s %s\n", "INT", "21h");
     }
 
     public static String CompTemplate(String destination, String ope, String source, int tabs, int labelCount) {
-        String code = generateTabs(tabs) + String.format("%-6s %-10s, %s\n", "CMP", destination, source);
+        String code = generateTabs(tabs) + String.format("%-3s %-3s, %s\n", "CMP", destination, source);
         switch (ope) {
             case "==":
                 code += generateTabs(tabs) + "JNE ";

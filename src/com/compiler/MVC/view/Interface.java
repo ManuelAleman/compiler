@@ -79,6 +79,7 @@ public class Interface extends JFrame {
 
         lowLevelArea = new JTextArea();
         lowLevelArea.setEditable(false);
+        lowLevelArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         JScrollPane lowLevelScrollPane = new JScrollPane(lowLevelArea);
         lowLevelScrollPane.setBorder(BorderFactory.createTitledBorder("Código de Bajo Nivel"));
         resultsPanel.add(lowLevelScrollPane);
