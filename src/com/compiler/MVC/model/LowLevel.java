@@ -10,32 +10,35 @@ import java.util.List;
 
 public class LowLevel {
     private StringBuilder lowLevelCode;
-    private StringBuilder auxProcedures;
     private List<Variable> variables;
     private List<Simbol> tokens;
     private Simbol currentToken;
     private int index;
+    private int ifLabelCount;
+    private int showLabelCount;
+    private int readLabelCount;
 
     public LowLevel() {
         variables = new ArrayList<>();
         tokens = new ArrayList<>();
         lowLevelCode = new StringBuilder();
-        auxProcedures = new StringBuilder();
     }
 
     public void prepareLowLevel(List<Variable> variables, List<Simbol> tokens) {
         this.variables = variables;
         this.tokens = tokens;
         index = 0;
+        ifLabelCount = 0;
+        showLabelCount = 0;
+        readLabelCount = 0;
+
         currentToken = tokens.isEmpty() ? null : tokens.get(index);
         lowLevelCode = new StringBuilder();
-        auxProcedures = new StringBuilder();
     }
 
     public void analizeLowLevel() {
         lowLevelCode.append(".model small\n")
                 .append(".stack 100h\n");
-
         generateDataSegment();
         generateCodeSegment();
     }
@@ -45,6 +48,8 @@ public class LowLevel {
         variables.forEach(variable ->
                 lowLevelCode.append(LowLevelTemplate.dataTemplate(variable, 1))
         );
+        lowLevelCode.append(String.format("%-20s %-3s %s", "new_line", "db", "0Dh, 0Ah, '$'")).append("\n");
+
     }
 
     private void generateCodeSegment() {
@@ -57,10 +62,9 @@ public class LowLevel {
             processToken();
             next();
         }
+        lowLevelCode.append(LowLevelTemplate.endOfProgram());
+        lowLevelCode.append("\nEND main");
 
-        lowLevelCode.append(auxProcedures)
-                .append(LowLevelTemplate.endOfProgram(1))
-                .append("\nEND main");
     }
 
     private void processToken() {
@@ -75,15 +79,59 @@ public class LowLevel {
             } else if ("print".equals(value)) {
                 next();
                 next();
-                if(match(Token.STRING_VALUE)){
-                    lowLevelCode.append(LowLevelTemplate.printStringTemplate(currentToken.getValue(), 1));
-                }else{
-                    lowLevelCode.append(LowLevelTemplate.prinIdTemplate(currentToken.getValue(), 1));
+                Variable variable = getVariable(currentToken.getValue());
+                if(variable.getType().equals("string")){
+                    lowLevelCode.append(LowLevelTemplate.printStringTemplate(variable.getName(), 1));
+                }else {
+                    lowLevelCode.append(LowLevelTemplate.printNumberIdTemplate(variable.getName(), 1));
+                    lowLevelCode.append(LowLevelTemplate.cicloTemplate(1, ++showLabelCount));
+                    lowLevelCode.append(LowLevelTemplate.printNumber(1, showLabelCount));
                 }
+            } else if ("read".equals(value)) {
+                next();
+                next();
+                Variable variable = getVariable(currentToken.getValue());
+                if(variable.getType().equals("string")){
+                    lowLevelCode.append(LowLevelTemplate.readStringTemplate(variable.getName(), 1, readLabelCount));
+                }else{
+                    lowLevelCode.append(LowLevelTemplate.readNumberTemplate(variable.getName(), 1, readLabelCount));
+                }
+            } else if( "if".equals(value)) {
+                processIf();
             }
         } else if (match(Token.IDENTIFIER)) {
             processAssignment();
         }
+    }
+
+    private void processIf() {
+        next();
+        next();
+        String val1 = currentToken.getValue();
+        next();
+        String op = currentToken.getValue();
+        next();
+        String val2 = currentToken.getValue();
+        next();
+        next();
+        lowLevelCode.append(LowLevelTemplate.CompTemplate(val1, op, val2, 1, ifLabelCount));
+        while (!match(Token.RIGHT_BRACE)) {
+            next();
+            processToken();
+        }
+        lowLevelCode.append("\t").append("JMP END_IF").append(ifLabelCount).append("\n");
+        lowLevelCode.append("ELSE").append(ifLabelCount).append(":\n");
+        next();
+        if (match(Token.RW) && "else".equals(currentToken.getValue())) {
+            next();
+            next();
+            while (!match(Token.RIGHT_BRACE)) {
+                processToken();
+                next();
+            }
+        }
+        lowLevelCode.append("END_IF").append(ifLabelCount).append(":\n");
+        ifLabelCount++;
     }
 
     private void processAssignment() {
@@ -128,6 +176,7 @@ public class LowLevel {
         }
         return null;
     }
+
     public String getLowLevelCode() {
         return lowLevelCode.toString();
     }
