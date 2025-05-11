@@ -10,6 +10,7 @@ import java.util.List;
 public class LowLevelController {
     private LowLevel lowLevel;
     private Interface view;
+    private boolean finished = false;
 
     public LowLevelController(LowLevel lowLevel, Interface view){
         this.lowLevel = lowLevel;
@@ -20,6 +21,7 @@ public class LowLevelController {
         resetLowLevelAnalysis();
         lowLevel.prepareLowLevel(variables, tokens);
         lowLevel.analizeLowLevel();
+        finished = true;
         updateViewWithAnalysisResults();
     }
 
@@ -27,11 +29,19 @@ public class LowLevelController {
         view.clearLowLevelContent();
         view.clearConsoleArea();
         lowLevel.clearLowLevel();
+        finished = false;
     }
 
     private void updateViewWithAnalysisResults() {
         view.setLowLevelContent(lowLevel.getLowLevelCode());
     }
 
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+    }
+
+    public boolean isFinished() {
+        return finished;
+    }
 
 }

@@ -47,14 +47,22 @@ public class LowLevel {
 
     private void generateDataSegment() {
         lowLevelCode.append(".DATA\n");
+        LowLevelTemplate.objectCode.append(".DATA\n");
         variables.forEach(variable ->
                 lowLevelCode.append(LowLevelTemplate.dataTemplate(variable, 1))
         );
         lowLevelCode.append("\t").append(String.format("%-5s %-3s %s", "new_line", "db", "0Dh, 0Ah, '$'")).append("\n");
-
+        LowLevelTemplate.registerMap.put("new_line", LowLevelTemplate.memoryDataSegment);
+        LowLevelTemplate.objectCode.append(LowLevelTemplate.memoryDataSegment).append("\t").append("0000 1101").append("\n");
+        LowLevelTemplate.memoryDataSegment = LowLevelTemplate.incrementMemorySegment(LowLevelTemplate.memoryDataSegment, 1);
+        LowLevelTemplate.objectCode.append(LowLevelTemplate.memoryDataSegment).append("\t").append("0000 1010").append("\n");
+        LowLevelTemplate.memoryDataSegment = LowLevelTemplate.incrementMemorySegment(LowLevelTemplate.memoryDataSegment, 1);
+        LowLevelTemplate.objectCode.append(LowLevelTemplate.memoryDataSegment).append("\t").append("0010 0100").append("\n");
+        LowLevelTemplate.memoryDataSegment = LowLevelTemplate.incrementMemorySegment(LowLevelTemplate.memoryDataSegment, 1);
     }
 
     private void generateCodeSegment() {
+        LowLevelTemplate.objectCode.append(".CODE\n");
         lowLevelCode.append(".CODE\n")
                 .append("main:\n")
                 .append(LowLevelTemplate.movTemplate("AX", "@DATA", 1))
@@ -195,6 +203,7 @@ public class LowLevel {
     }
 
     public void clearLowLevel() {
+        LowLevelTemplate.resetObjectCode();
         lowLevelCode = new StringBuilder();
     }
 }

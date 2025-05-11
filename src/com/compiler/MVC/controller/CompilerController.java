@@ -1,9 +1,6 @@
 package com.compiler.MVC.controller;
 
-import com.compiler.MVC.model.Lexical;
-import com.compiler.MVC.model.LowLevel;
-import com.compiler.MVC.model.Parser;
-import com.compiler.MVC.model.Semantic;
+import com.compiler.MVC.model.*;
 import com.compiler.MVC.view.Interface;
 
 public class CompilerController {
@@ -11,6 +8,7 @@ public class CompilerController {
     private ParserController parserController;
     private SemanticController semanticController;
     private LowLevelController lowLevelController;
+    private ObjectCodeController objectCodeController;
     private Interface view;
 
     public CompilerController(Interface view) {
@@ -28,6 +26,8 @@ public class CompilerController {
         this.semanticController = new SemanticController(semanticModel, view);
         LowLevel lowLevelModel = new LowLevel();
         this.lowLevelController = new LowLevelController(lowLevelModel, view);
+        ObjectCode objectCodeModel = new ObjectCode();
+        this.objectCodeController = new ObjectCodeController(objectCodeModel, view);
 
     }
 
@@ -57,18 +57,27 @@ public class CompilerController {
 
         view.setLowLevelButtonListener(_ -> {
             lowLevelController.generateLowLevelCode(semanticController.getVariables(), lexicalController.getSimbols());
+            updateButtonStatus();
         });
         view.setLowLevelButtonEnabled(false);
+
+        view.setObjectCodeButtonListener(_ -> {
+            objectCodeController.generateObjectCode();
+        });
+        view.setObjectCodeButtonEnabled(false);
+
     }
 
     private void updateButtonStatus(){
         boolean isLexerCorrect = lexicalController.isLexicalCorrect();
         boolean isParserCorrect = parserController.isParserCorrect();
         boolean isSemanticCorrect = semanticController.isSemanticCorrect();
+        boolean isLowLevelFinished = lowLevelController.isFinished();
 
         view.setParserButtonEnabled(isLexerCorrect);
         view.setSemanticButtonEnabled(isLexerCorrect && isParserCorrect);
         view.setLowLevelButtonEnabled(isLexerCorrect && isParserCorrect && isSemanticCorrect);
+        view.setObjectCodeButtonEnabled(isLexerCorrect && isParserCorrect && isSemanticCorrect && isLowLevelFinished);
     }
 
     private void codeEmpty(){
@@ -85,6 +94,7 @@ public class CompilerController {
         lexicalController.setLexicalCorrect(false);
         parserController.setParserCorrect(false);
         semanticController.setSemanticCorrect(false);
+        lowLevelController.setFinished(false);
     }
 
 }

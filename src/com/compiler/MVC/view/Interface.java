@@ -10,12 +10,14 @@ public class Interface extends JFrame {
     private JTextArea codeArea;
     private JTextArea lexicoArea;
     private JTextArea lowLevelArea;
+    private JTextArea objectCodeArea;
     private JPanel sintacticoSemanticPanel;
     private JTextArea consoleArea;
     private JButton analyzeButton;
     private JButton parserButton;
     private JButton semanticButton;
     private JButton lowLevelButton;
+    private JButton objectCodeButton;
 
     private JLabel sintacticLabel;
     private JLabel semanticLabel;
@@ -47,10 +49,12 @@ public class Interface extends JFrame {
         parserButton = new JButton("Parser");
         semanticButton = new JButton("Semántico");
         lowLevelButton = new JButton("Código de Bajo Nivel");
+        objectCodeButton = new JButton("Código Objeto");
         buttonPanel.add(analyzeButton);
         buttonPanel.add(parserButton);
         buttonPanel.add(semanticButton);
         buttonPanel.add(lowLevelButton);
+        buttonPanel.add(objectCodeButton);
 
         add(buttonPanel, BorderLayout.NORTH);
 
@@ -58,35 +62,48 @@ public class Interface extends JFrame {
         JScrollPane codeScrollPane = new JScrollPane(codeArea);
         codeScrollPane.setBorder(BorderFactory.createTitledBorder("Código Fuente"));
 
-        JPanel resultsPanel = new JPanel(new GridLayout(1, 1, 5, 5));
+        // Panel izquierdo para resultados
+        JPanel leftPanel = new JPanel(new GridLayout(3, 1, 5, 5));
 
         lexicoArea = new JTextArea();
         lexicoArea.setEditable(false);
         JScrollPane lexicoScrollPane = new JScrollPane(lexicoArea);
         lexicoScrollPane.setBorder(BorderFactory.createTitledBorder("Análisis Léxico"));
-        resultsPanel.add(lexicoScrollPane);
+        leftPanel.add(lexicoScrollPane);
 
-        sintacticoSemanticPanel = new JPanel(new GridLayout(2, 2, 5, 5));
-
+        sintacticoSemanticPanel = new JPanel(new GridLayout(1, 2, 5, 5));
         sintacticLabel = new JLabel();
         sintacticLabel.setBorder(BorderFactory.createTitledBorder("Análisis Sintáctico"));
         semanticLabel = new JLabel();
         semanticLabel.setBorder(BorderFactory.createTitledBorder("Análisis Semántico"));
-
         sintacticoSemanticPanel.add(sintacticLabel);
         sintacticoSemanticPanel.add(semanticLabel);
-        resultsPanel.add(sintacticoSemanticPanel);
+        leftPanel.add(sintacticoSemanticPanel);
 
         lowLevelArea = new JTextArea();
         lowLevelArea.setEditable(false);
         lowLevelArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         JScrollPane lowLevelScrollPane = new JScrollPane(lowLevelArea);
         lowLevelScrollPane.setBorder(BorderFactory.createTitledBorder("Código de Bajo Nivel"));
-        resultsPanel.add(lowLevelScrollPane);
+        leftPanel.add(lowLevelScrollPane);
 
+        // Panel derecho para el Código Objeto
+        objectCodeArea = new JTextArea();
+        objectCodeArea.setEditable(false);
+        objectCodeArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        JScrollPane objectCodeScrollPane = new JScrollPane(objectCodeArea);
+        objectCodeScrollPane.setBorder(BorderFactory.createTitledBorder("Código Objeto"));
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, codeScrollPane, resultsPanel);
-        splitPane.setResizeWeight(0.5);
+        // Dividir horizontalmente: izquierda (análisis), derecha (objeto)
+        JSplitPane horizontalSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, objectCodeScrollPane);
+        horizontalSplit.setResizeWeight(0.4); // más espacio al panel derecho (60%)
+        horizontalSplit.setDividerLocation(0.4); // 60% espacio para el código objeto
+
+        // Dividir verticalmente: código fuente arriba, resultados abajo
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, codeScrollPane, horizontalSplit);
+        splitPane.setResizeWeight(0.3); // más espacio al área de abajo (resultados)
+        splitPane.setDividerLocation(0.3); // 30% para código fuente
+
         add(splitPane, BorderLayout.CENTER);
 
         consoleArea = new JTextArea();
@@ -145,6 +162,10 @@ public class Interface extends JFrame {
         lowLevelButton.addActionListener(listener);
     }
 
+    public void setObjectCodeButtonListener(ActionListener listener) {
+        objectCodeButton.addActionListener(listener);
+    }
+
     public String getCode() {
         return codeArea.getText();
     }
@@ -166,6 +187,14 @@ public class Interface extends JFrame {
         lowLevelArea.setText("");
     }
 
+    public void setObjectCodeContent(String content){
+        objectCodeArea.setText(content);
+    }
+
+    public void clearObjectCodeContent(){
+        objectCodeArea.setText("");
+    }
+
     public void logToConsole(String message) {
         consoleArea.append(message + "\n");
     }
@@ -184,6 +213,10 @@ public class Interface extends JFrame {
 
     public void setLowLevelButtonEnabled(boolean enabled){
         lowLevelButton.setEnabled(enabled);
+    }
+
+    public void setObjectCodeButtonEnabled(boolean enabled){
+        objectCodeButton.setEnabled(enabled);
     }
 
     public void setSintacticoColor(boolean isValid) {
