@@ -59,6 +59,7 @@ public class LowLevelTemplate {
                     .append(String.format("MOV [%s + %d], '%c'\n", varName, j, characters[j]));
             objectCode.append(memoryCodeSegment).append(generateTabs(tabs)).append("1100 0110 0000 0110 ").append(memoryStringLoc).append(charToBinaryWithSpace(characters[j])).append("\n");
             memoryStringLoc = incrementMemorySegment(memoryStringLoc, 1);
+            memoryCodeSegment = incrementMemorySegment(memoryCodeSegment, 5);
         }
 
         return stringCode.toString();
@@ -306,7 +307,7 @@ public class LowLevelTemplate {
         memoryCodeSegment = incrementMemorySegment(memoryCodeSegment, 2);
         objectCode.append(memoryCodeSegment).append(generateTabs(1)).append("1100 1101 0010 0001").append("\n");
         memoryCodeSegment = incrementMemorySegment(memoryCodeSegment, 2);
-        return generateTabs(tabs) + "MOV DX, OFFSET new_line\n" +
+        return generateTabs(tabs) + "LEA DX, new_line\n" +
                 generateTabs(tabs) + "MOV AH, 09h\n" +
                 generateTabs(tabs) + "INT 21h\n";
     }
@@ -317,28 +318,38 @@ public class LowLevelTemplate {
 
     public static String CompTemplate(String destination, String ope, String source, int tabs, int labelCount) {
         String code = generateTabs(tabs) + String.format("%-3s %-3s, %s\n", "CMP", destination, source);
-        objectCode.append(memoryCodeSegment).append(generateTabs(tabs)).append("0011 1101 1101 0010 ").append("\n");
+        objectCode.append(memoryCodeSegment).append(generateTabs(tabs)).append("1000 0001 0011 1110 ").append(getMemoryVariable(destination)).append(" ").append(numberToBinary(source)).append("\n");
+        memoryCodeSegment = incrementMemorySegment(memoryCodeSegment, 6);
+        objectCode.append(memoryCodeSegment).append(generateTabs(tabs));
         switch (ope) {
             case "==":
                 code += generateTabs(tabs) + "JNE ";
+                objectCode.append("0111 0101 ");
                 break;
             case "<>":
                 code += generateTabs(tabs) + "JE ";
+                objectCode.append("0111 0100 ");
                 break;
             case ">":
                 code += generateTabs(tabs) + "JLE ";
+                objectCode.append("0111 1110 ");
                 break;
             case "<":
                 code += generateTabs(tabs) + "JGE ";
+                objectCode.append("0111 1101 ");
                 break;
             case ">=":
                 code += generateTabs(tabs) + "JL ";
+                objectCode.append("0111 1100 ");
                 break;
             case "<=":
                 code += generateTabs(tabs) + "JG ";
+                objectCode.append("0111 1111 ");
                 break;
         }
         code += "ELSE" + labelCount + "\n";
+        objectCode.append("0000 1011").append("\n");
+        memoryCodeSegment = incrementMemorySegment(memoryCodeSegment, 2);
         return code;
     }
     public static String incrementMemorySegment(String segment, int bytesToAdd) {
@@ -358,7 +369,7 @@ public class LowLevelTemplate {
     }
 
     public static String getMemoryVariable(String name){
-        return registerMap.get(name);
+        return registerMap.getOrDefault(name, "0000 0000 0000 0000");
     }
 
     public static String numberToBinary(String number) {
