@@ -232,7 +232,7 @@ public class LowLevelTemplate {
     }
 
     public static String cicloTemplate(int tabs, int labelCount) {
-        objectCode.append(memoryCodeSegment).append(generateTabs(1)).append("0011 0011 1101 0010 ");
+        objectCode.append(memoryCodeSegment).append(generateTabs(1)).append("0011 0011 1101 0010 ").append("\n");
         memoryCodeSegment = incrementMemorySegment(memoryCodeSegment, 2);
         objectCode.append(memoryCodeSegment).append(generateTabs(1)).append("1011 1011 ").append(numberToBinary("10")).append("\n");
         memoryCodeSegment = incrementMemorySegment(memoryCodeSegment, 3);
@@ -376,8 +376,11 @@ public class LowLevelTemplate {
         int num = Integer.parseInt(number);
         String binary = Integer.toBinaryString(num);
         String padded = String.format("%16s", binary).replace(' ', '0');
-        return padded.replaceAll("(.{4})(?!$)", "$1 ");
+        String[] groups = padded.replaceAll("(.{4})(?!$)", "$1 ").split(" ");
+        String reordered = groups[2] + " " + groups[3] + " " + groups[0] + " " + groups[1];
+        return reordered;
     }
+
 
 
 }

@@ -44,4 +44,8 @@ public class LowLevelController {
         return finished;
     }
 
+    public void clearLowLevel(){
+        view.clearLowLevelContent();
+    }
+
 }

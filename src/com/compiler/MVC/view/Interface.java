@@ -62,14 +62,16 @@ public class Interface extends JFrame {
         JScrollPane codeScrollPane = new JScrollPane(codeArea);
         codeScrollPane.setBorder(BorderFactory.createTitledBorder("Código Fuente"));
 
-        // Panel izquierdo para resultados
-        JPanel leftPanel = new JPanel(new GridLayout(3, 1, 5, 5));
+        JPanel leftPanel = new JPanel();
+        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
 
         lexicoArea = new JTextArea();
         lexicoArea.setEditable(false);
         JScrollPane lexicoScrollPane = new JScrollPane(lexicoArea);
         lexicoScrollPane.setBorder(BorderFactory.createTitledBorder("Análisis Léxico"));
+        lexicoScrollPane.setPreferredSize(new Dimension(0, 120));
         leftPanel.add(lexicoScrollPane);
+        leftPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
         sintacticoSemanticPanel = new JPanel(new GridLayout(1, 2, 5, 5));
         sintacticLabel = new JLabel();
@@ -78,37 +80,40 @@ public class Interface extends JFrame {
         semanticLabel.setBorder(BorderFactory.createTitledBorder("Análisis Semántico"));
         sintacticoSemanticPanel.add(sintacticLabel);
         sintacticoSemanticPanel.add(semanticLabel);
+        sintacticoSemanticPanel.setPreferredSize(new Dimension(0, 100));
         leftPanel.add(sintacticoSemanticPanel);
+        leftPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
         lowLevelArea = new JTextArea();
         lowLevelArea.setEditable(false);
         lowLevelArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         JScrollPane lowLevelScrollPane = new JScrollPane(lowLevelArea);
         lowLevelScrollPane.setBorder(BorderFactory.createTitledBorder("Código de Bajo Nivel"));
+        lowLevelScrollPane.setPreferredSize(new Dimension(0, 300));
         leftPanel.add(lowLevelScrollPane);
 
-        // Panel derecho para el Código Objeto
+
         objectCodeArea = new JTextArea();
         objectCodeArea.setEditable(false);
         objectCodeArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         JScrollPane objectCodeScrollPane = new JScrollPane(objectCodeArea);
         objectCodeScrollPane.setBorder(BorderFactory.createTitledBorder("Código Objeto"));
 
-        // Dividir horizontalmente: izquierda (análisis), derecha (objeto)
-        JSplitPane horizontalSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, objectCodeScrollPane);
-        horizontalSplit.setResizeWeight(0.4); // más espacio al panel derecho (60%)
-        horizontalSplit.setDividerLocation(0.4); // 60% espacio para el código objeto
 
-        // Dividir verticalmente: código fuente arriba, resultados abajo
+        JSplitPane horizontalSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, objectCodeScrollPane);
+        horizontalSplit.setResizeWeight(0.4);
+        horizontalSplit.setDividerLocation(0.4);
+
+
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, codeScrollPane, horizontalSplit);
-        splitPane.setResizeWeight(0.3); // más espacio al área de abajo (resultados)
-        splitPane.setDividerLocation(0.3); // 30% para código fuente
+        splitPane.setResizeWeight(0.3);
+        splitPane.setDividerLocation(0.3);
 
         add(splitPane, BorderLayout.CENTER);
 
         consoleArea = new JTextArea();
         consoleArea.setEditable(false);
-        consoleArea.setFont(new Font("Arial", Font.BOLD , 14));
+        consoleArea.setFont(new Font("Arial", Font.BOLD, 14));
         JScrollPane consoleScrollPane = new JScrollPane(consoleArea);
         consoleScrollPane.setBorder(BorderFactory.createTitledBorder("Consola"));
         consoleScrollPane.setPreferredSize(new Dimension(getWidth(), 150));
@@ -233,5 +238,4 @@ public class Interface extends JFrame {
         semanticLabel.setBackground(null);
         sintacticLabel.setBackground(null);
     }
-
 }

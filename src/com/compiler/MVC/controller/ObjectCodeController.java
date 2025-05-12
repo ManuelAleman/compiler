@@ -25,4 +25,8 @@ public class ObjectCodeController {
     private void updateViewWithAnalysisResults() {
         view.setObjectCodeContent(objectCode.getObjectCode());
     }
+
+    public void clearObjectCode(){
+        view.clearObjectCodeContent();
+    }
 }

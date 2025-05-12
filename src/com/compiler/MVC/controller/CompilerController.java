@@ -35,6 +35,8 @@ public class CompilerController {
         view.setAnalyzeButtonListener(_ -> {
             resetControllers();
             parserController.clearParser();
+            lowLevelController.clearLowLevel();
+            objectCodeController.clearObjectCode();
             if (isCodeEmpty()) {
                 codeEmpty();
                 return;

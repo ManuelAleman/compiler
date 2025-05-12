@@ -136,6 +136,8 @@ public class LowLevel {
         }
 
         lowLevelCode.append("\t").append("JMP END_IF").append(currentIfLabel).append("\n");
+        LowLevelTemplate.objectCode.append(LowLevelTemplate.memoryCodeSegment).append("\t").append("1110 1011 1000 1000").append("\n");
+        LowLevelTemplate.memoryCodeSegment = LowLevelTemplate.incrementMemorySegment(LowLevelTemplate.memoryCodeSegment, 2);
 
 
         lowLevelCode.append("ELSE").append(currentIfLabel).append(":\n");
